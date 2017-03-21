@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}bandView{% endblock %}
+
+{% block page_content %}
+<button type="button" onclick="changeX()"> ChangeX </button>
+<button type="button" onclick="changeY()"> ChangeY </button>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="{{url_for('static',filename='js/lib/d3.js')}}"></script>
+<script src="{{url_for('static',filename='js/lib/jquery.min.js')}}"></script>
+<script src="{{url_for('static',filename='js/bandView.js')}}"></script>
+{% endblock %}
+
