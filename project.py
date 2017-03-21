@@ -53,5 +53,9 @@ def courtChart():
 def bandView():
     return render_template('bandView.html')
 
+@app.route('/test')
+def test():
+    return render_template('test.html')
+
 if __name__ == '__main__':
     manager.run()
