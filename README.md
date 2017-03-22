@@ -1,4 +1,25 @@
 # Vis_basketball
+
+## 目录说明
+```
+Vis_basketball
+│   README.md
+│   project.py    
+│
+└───template
+│   |   playerStream.html
+│   |   gameClock.html
+|   |   bandView.html
+|   |   courtChart.html
+|   └   ...
+|
+└───static
+    |   js
+    |   css
+    |   img
+    └   data
+```
+
 ## 环境配置(ubuntu 16.04)
 - **Python** ：本框架使用python2.7；
 - **Python包下载** ：利用pip安装flask,flask_script,flask_bootstrap；
