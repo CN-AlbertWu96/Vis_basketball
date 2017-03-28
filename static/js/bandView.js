@@ -27,181 +27,181 @@
 
 function LoadTeamLogos(){
 	d3.select("#teamLogos").insert("img")
-      .attr("src","static/teamLogos/ATL_logo.svg")
+      .attr("src","static/img/teamLogos/ATL_logo.svg")
 	  .attr("name","teamLogo")
       .attr("width", 30)
       .attr("height", 30);
 	
 	d3.select("#teamLogos").insert("img")
-      .attr("src","static/teamLogos/BKN_logo.svg")
+      .attr("src","static/img/teamLogos/BKN_logo.svg")
 	  .attr("name","teamLogo")
       .attr("width", 30)
       .attr("height", 30);
 	
 	d3.select("#teamLogos").insert("img")
-      .attr("src","static/teamLogos/BOS_logo.svg")
+      .attr("src","static/img/teamLogos/BOS_logo.svg")
 	  .attr("name","teamLogo")
       .attr("width", 30)
       .attr("height", 30);
 	
     d3.select("#teamLogos").insert("img")
-      .attr("src","static/teamLogos/CHA_logo.svg")
+      .attr("src","static/img/teamLogos/CHA_logo.svg")
 	  .attr("name","teamLogo")
       .attr("width", 30)
       .attr("height", 30);
 	  
 	d3.select("#teamLogos").insert("img")
-      .attr("src","static/teamLogos/CHI_logo.svg")
+      .attr("src","static/img/teamLogos/CHI_logo.svg")
 	  .attr("name","teamLogo")
       .attr("width", 30)
       .attr("height", 30);
 	  
 	d3.select("#teamLogos").insert("img")
-      .attr("src","static/teamLogos/CLE_logo.svg")
+      .attr("src","static/img/teamLogos/CLE_logo.svg")
 	  .attr("name","teamLogo")
       .attr("width", 30)
       .attr("height", 30);
 	
 	d3.select("#teamLogos").insert("img")
-      .attr("src","static/teamLogos/DAL_logo.svg")
+      .attr("src","static/img/teamLogos/DAL_logo.svg")
 	  .attr("name","teamLogo")
       .attr("width", 30)
       .attr("height", 30);
 	
 	d3.select("#teamLogos").insert("img")
-      .attr("src","static/teamLogos/DEN_logo.svg")
+      .attr("src","static/img/teamLogos/DEN_logo.svg")
 	  .attr("name","teamLogo")
       .attr("width", 30)
       .attr("height", 30);
 	
 	d3.select("#teamLogos").insert("img")
-      .attr("src","static/teamLogos/DET_logo.svg")
+      .attr("src","static/img/teamLogos/DET_logo.svg")
 	  .attr("name","teamLogo")
       .attr("width", 30)
       .attr("height", 30);
 	
 	d3.select("#teamLogos").insert("img")
-      .attr("src","static/teamLogos/GSW_logo.svg")
+      .attr("src","static/img/teamLogos/GSW_logo.svg")
 	  .attr("name","teamLogo")
       .attr("width", 30)
       .attr("height", 30);
 	
 	d3.select("#teamLogos").insert("img")
-      .attr("src","static/teamLogos/HOU_logo.svg")
+      .attr("src","static/img/teamLogos/HOU_logo.svg")
 	  .attr("name","teamLogo")
       .attr("width", 30)
       .attr("height", 30);
 	
 	d3.select("#teamLogos").insert("img")
-      .attr("src","static/teamLogos/IND_logo.svg")
+      .attr("src","static/img/teamLogos/IND_logo.svg")
 	  .attr("name","teamLogo")
       .attr("width", 30)
       .attr("height", 30);
 	  
 	d3.select("#teamLogos").insert("img")
-      .attr("src","static/teamLogos/LAC_logo.svg")
+      .attr("src","static/img/teamLogos/LAC_logo.svg")
 	  .attr("name","teamLogo")
       .attr("width", 30)
       .attr("height", 30);
 	
 	d3.select("#teamLogos").insert("img")
-      .attr("src","static/teamLogos/LAL_logo.svg")
+      .attr("src","static/img/teamLogos/LAL_logo.svg")
 	  .attr("name","teamLogo")
       .attr("width", 30)
       .attr("height", 30);
 	
 	d3.select("#teamLogos").insert("img")
-      .attr("src","static/teamLogos/MEM_logo.svg")
+      .attr("src","static/img/teamLogos/MEM_logo.svg")
 	  .attr("name","teamLogo")
       .attr("width", 30)
       .attr("height", 30);
 	
 	d3.select("#teamLogos").insert("img")
-      .attr("src","static/teamLogos/MIA_logo.svg")
+      .attr("src","static/img/teamLogos/MIA_logo.svg")
 	  .attr("name","teamLogo")
       .attr("width", 30)
       .attr("height", 30);
 	
 	d3.select("#teamLogos").insert("img")
-      .attr("src","static/teamLogos/MIL_logo.svg")
+      .attr("src","static/img/teamLogos/MIL_logo.svg")
 	  .attr("name","teamLogo")
       .attr("width", 30)
       .attr("height", 30);
 	
 	d3.select("#teamLogos").insert("img")
-      .attr("src","static/teamLogos/MIN_logo.svg")
+      .attr("src","static/img/teamLogos/MIN_logo.svg")
 	  .attr("name","teamLogo")
       .attr("width", 30)
       .attr("height", 30);
 	
 	d3.select("#teamLogos").insert("img")
-      .attr("src","static/teamLogos/NOP_logo.svg")
+      .attr("src","static/img/teamLogos/NOP_logo.svg")
 	  .attr("name","teamLogo")
       .attr("width", 30)
       .attr("height", 30);
 	
 	d3.select("#teamLogos").insert("img")
-      .attr("src","static/teamLogos/NYK_logo.svg")
+      .attr("src","static/img/teamLogos/NYK_logo.svg")
 	  .attr("name","teamLogo")
       .attr("width", 30)
       .attr("height", 30);
 	  
 	d3.select("#teamLogos").insert("img")
-      .attr("src","static/teamLogos/OKC_logo.svg")
+      .attr("src","static/img/teamLogos/OKC_logo.svg")
 	  .attr("name","teamLogo")
       .attr("width", 30)
       .attr("height", 30);
 	  
 	d3.select("#teamLogos").insert("img")
-      .attr("src","static/teamLogos/ORL_logo.svg")
+      .attr("src","static/img/teamLogos/ORL_logo.svg")
 	  .attr("name","teamLogo")
       .attr("width", 30)
       .attr("height", 30);
 	  
 	d3.select("#teamLogos").insert("img")
-      .attr("src","static/teamLogos/PHI_logo.svg")
+      .attr("src","static/img/teamLogos/PHI_logo.svg")
 	  .attr("name","teamLogo")
       .attr("width", 30)
       .attr("height", 30);
 	
 	d3.select("#teamLogos").insert("img")
-      .attr("src","static/teamLogos/PHX_logo.svg")
+      .attr("src","static/img/teamLogos/PHX_logo.svg")
 	  .attr("name","teamLogo")
       .attr("width", 30)
       .attr("height", 30);
 	
 	d3.select("#teamLogos").insert("img")
-      .attr("src","static/teamLogos/POR_logo.svg")
+      .attr("src","static/img/teamLogos/POR_logo.svg")
 	  .attr("name","teamLogo")
       .attr("width", 30)
       .attr("height", 30);
 	  
 	d3.select("#teamLogos").insert("img")
-      .attr("src","static/teamLogos/SAC_logo.svg")
+      .attr("src","static/img/teamLogos/SAC_logo.svg")
 	  .attr("name","teamLogo")
       .attr("width", 30)
       .attr("height", 30);
 	  
 	d3.select("#teamLogos").insert("img")
-      .attr("src","static/teamLogos/SAS_logo.svg")
+      .attr("src","static/img/teamLogos/SAS_logo.svg")
 	  .attr("name","teamLogo")
       .attr("width", 30)
       .attr("height", 30);
 	  
 	d3.select("#teamLogos").insert("img")
-      .attr("src","static/teamLogos/TOR_logo.svg")
+      .attr("src","static/img/teamLogos/TOR_logo.svg")
 	  .attr("name","teamLogo")
       .attr("width", 30)
       .attr("height", 30);
 	  
 	d3.select("#teamLogos").insert("img")
-      .attr("src","static/teamLogos/UTA_logo.svg")
+      .attr("src","static/img/teamLogos/UTA_logo.svg")
 	  .attr("name","teamLogo")
       .attr("width", 30)
       .attr("height", 30);
 	  
 	d3.select("#teamLogos").insert("img")
-      .attr("src","static/teamLogos/WAS_logo.svg")
+      .attr("src","static/img/teamLogos/WAS_logo.svg")
 	  .attr("name","teamLogo")
       .attr("width", 30)
       .attr("height", 30);
