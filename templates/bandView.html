@@ -2,14 +2,103 @@
 
 {% block title %}bandView{% endblock %}
 
+{ % block head % }
+{{ super() }}
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" type="text/css" href="{{url_for('static',filename='css/lib/bootstrap.min.css')}}">
+{ % endblock % }
+
 {% block page_content %}
-<button type="button" onclick="changeX()"> ChangeX </button>
-<button type="button" onclick="changeY()"> ChangeY </button>
+<div class="container" id="mainContainer">
+<div class="row form-group">
+<div class="col-md-11" id="graphContainer" style="overflow-x:auto" align="center"></div>
+<div class="col-md-1" id="attrContainer"></div>
+</div>
+</div>
+
+<div class="container" id="buttonContainer">
+
+<div class="row form-group">
+	<div class="col-md-1 col-md-offset-1">
+	<b>View </b>
+	</div>
+	<div class="col-md-10">
+		<div id="viewBtn" class="btn-group">
+			<button type="button" id="ordinaryView" class="btn btn-default active">Ordinary</button>
+			<button type="button" id="normalizedView" class="btn btn-default">Normalized</button>
+		</div>
+	</div>
+</div>
+
+<div class="row form-group" id="XYAxisSelectors">
+	<div class="col-md-1 col-md-offset-1">
+	<b>X-Axis</b>
+	</div>
+	<div class="col-md-4">
+		<div id="xAxisSelector" class="btn-group">
+			<butto	n type="button" class="btn btn-default active">+/-</button>
+			<button type="button" class="btn btn-default">Score</button>
+		</div>
+	</div>
+	<div class="col-md-1 col-md-offset-1">
+	<b>Y-Axis</b>
+	</div>
+	<div class="col-md-4">
+		<div id="yAxisSelector" class="btn-group">
+			<button type="button" class="btn btn-default active">Magnitude</button>
+			<button type="button" class="btn btn-default">+/-</button>
+		</div>
+	</div>
+</div>
+
+<div class="row form-group">
+	<div class="col-md-1 col-md-offset-1">
+	<b>Home/Away</b>
+	</div>
+	<div class="col-md-4">
+		<div id="homeOrAwaySelector" class="btn-group">
+			<button type="button" class="btn btn-default active" value="All">All</button>
+			<button type="button" class="btn btn-warning" value="Home">Home</button>
+			<button type="button" class="btn btn-primary" value="Away">Away</button>
+		</div>
+	</div>
+	<div class="col-md-1 col-md-offset-1">
+	<b>Win/Loss</b>
+	</div>
+	<div class="col-md-4">
+		<div id="winOrLossSelector" class="btn-group">
+			<button type="button" class="btn btn-default active" value="All">All</button>
+			<button type="button" class="btn btn-success" value="Wins">Wins</button>
+			<button type="button" class="btn btn-danger" value="Losses">Losses</button>
+		</div>
+	</div>
+</div>
+
+<div class="row form-group">
+	<div class="col-md-1 col-md-offset-1">
+	<b>Opponents</b>
+	</div>
+	<div class="col-md-4">
+		<div id="teamLogosBtn" class="btn-group">
+			<button type="button" id="allGamesSelector" class="btn btn-default active" value="30">All</button>
+			<button type="button" id="noneGameSelector" class="btn btn-default" value="-1">None</button>
+		</div>
+	</div>
+</div>
+
+<div class="row form-group">
+<div id="teamLogos" class="col-md-10 col-md-offset-2">
+</div> 
+</div>
+
+</div>
 {% endblock %}
 
 {% block scripts %}
 {{ super() }}
 <script src="{{url_for('static',filename='js/lib/d3.js')}}"></script>
+<script src="{{url_for('static',filename='js/lib/bootstrap.min.js')}}"></script>
 <script src="{{url_for('static',filename='js/lib/jquery.min.js')}}"></script>
 <script src="{{url_for('static',filename='js/bandView.js')}}"></script>
 {% endblock %}
