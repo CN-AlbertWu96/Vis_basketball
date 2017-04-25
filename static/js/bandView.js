@@ -1,4 +1,118 @@
-﻿function FilterTeam(i){
+function changeView(){
+	viewFlag = 1 - viewFlag;
+	drawGraph(xFlag,yFlag,gameFilter,viewFlag);
+}
+
+function changeX(){
+	xFlag = 1 - xFlag;
+	myData.sort(function(a,b){
+		if(xFlag)
+		     return a.score - b.score;
+		else return a.x - b.x;
+	});
+		
+	drawGraph(xFlag,yFlag,gameFilter,viewFlag);
+}
+
+
+function changeY(){
+	yFlag = 1 - yFlag;
+	
+	myData.forEach(
+		function(d){
+			d.attrArray.sort(
+				function(a,b){
+					if(yFlag)
+						return Math.abs(b.diff) - Math.abs(a.diff);
+					else return Math.abs(b.val) - Math.abs(a.val);
+				});
+	});
+		
+	drawGraph(xFlag,yFlag,gameFilter,viewFlag);
+}
+
+function changeShowAttr(i){
+	showAttr.showOrNot[i] = 1 - showAttr.showOrNot[i];
+	drawGraph(xFlag,yFlag,gameFilter,viewFlag);
+}
+
+function FilterHomeAway(status){
+	switch(status){
+		case "All": 
+			gameFilter.homeOrAway = -1; //all
+			break;
+		case "Home": 
+			gameFilter.homeOrAway = 1; //home
+			break;
+		case "Away":
+			gameFilter.homeOrAway = 0; //away
+	}
+	
+	drawGraph(xFlag,yFlag,gameFilter,viewFlag);
+}
+
+function FilterWinLoss(status){
+	switch(status){
+		case "All": 
+			gameFilter.winOrLoss = -1; //all
+			break;
+		case "Wins": 
+			gameFilter.winOrLoss = 1; //win
+			break;
+		case "Losses":
+			gameFilter.winOrLoss = 0; //loss
+	}
+	
+	drawGraph(xFlag,yFlag,gameFilter,viewFlag);
+}
+
+
+function BindEventToButtons(){
+	$('#viewBtn button').on('click', function(){
+		$(this).addClass('active').siblings().removeClass('active');
+		changeView();
+		
+		if(viewFlag == 1 ){
+			$('#XYAxisSelectors').hide();
+		}
+		else $('#XYAxisSelectors').show();
+	});
+
+	$('#xAxisSelector button').on('click', function(){
+		$(this).addClass('active').siblings().removeClass('active');
+		changeX();
+	});
+
+	$('#yAxisSelector button').on('click', function(){
+		$(this).addClass('active').siblings().removeClass('active');
+		changeY();
+	});
+
+	$('#homeOrAwaySelector button').on('click', function(){
+		$(this).addClass('active').siblings().removeClass('active');
+		FilterHomeAway($(this).val());
+	});
+
+	$('#winOrLossSelector button').on('click', function(){
+		$(this).addClass('active').siblings().removeClass('active');
+		FilterWinLoss($(this).val());
+	});
+
+	$('#teamLogosBtn button').on('click', function(){
+		$('#teamLogosBtn button').removeClass('active');
+		$(this).addClass('active');
+		FilterTeam($(this).val());
+	});
+
+	LoadTeamLogos();
+
+	$('#teamLogos img').on('click', function(){
+		$('#teamLogosBtn button').removeClass('active');
+		FilterTeam($('#teamLogos img').index(this));
+	});
+}
+
+function FilterTeam(i){
 	if(i==-1) {
 		gameFilter.opponent.fill(0);
 		var teamLogos = document.getElementsByName("teamLogo");
@@ -25,197 +139,36 @@
 	drawGraph(xFlag,yFlag,gameFilter);
 }
 
+//var teams = ["ATL","BKN","BOS","CHA","CHI","CLE","DAL","DEN","DET","GSW","HOU","IND","LAC","LAL","MEM","MIA","MIL","MIN","NOP","NYK","OKC","ORL","PHI","PHX","POR","SAC","SAS","TOR","UTA","WAS"];
+
+
 function LoadTeamLogos(){
-	d3.select("#teamLogos").insert("img")
-      .attr("src","static/img/teamLogos/ATL_logo.svg")
-	  .attr("name","teamLogo")
-      .attr("width", 30)
-      .attr("height", 30);
-	
-	d3.select("#teamLogos").insert("img")
-      .attr("src","static/img/teamLogos/BKN_logo.svg")
-	  .attr("name","teamLogo")
-      .attr("width", 30)
-      .attr("height", 30);
-	
-	d3.select("#teamLogos").insert("img")
-      .attr("src","static/img/teamLogos/BOS_logo.svg")
-	  .attr("name","teamLogo")
-      .attr("width", 30)
-      .attr("height", 30);
-	
-    d3.select("#teamLogos").insert("img")
-      .attr("src","static/img/teamLogos/CHA_logo.svg")
-	  .attr("name","teamLogo")
-      .attr("width", 30)
-      .attr("height", 30);
-	  
-	d3.select("#teamLogos").insert("img")
-      .attr("src","static/img/teamLogos/CHI_logo.svg")
-	  .attr("name","teamLogo")
-      .attr("width", 30)
-      .attr("height", 30);
-	  
-	d3.select("#teamLogos").insert("img")
-      .attr("src","static/img/teamLogos/CLE_logo.svg")
-	  .attr("name","teamLogo")
-      .attr("width", 30)
-      .attr("height", 30);
-	
-	d3.select("#teamLogos").insert("img")
-      .attr("src","static/img/teamLogos/DAL_logo.svg")
-	  .attr("name","teamLogo")
-      .attr("width", 30)
-      .attr("height", 30);
-	
-	d3.select("#teamLogos").insert("img")
-      .attr("src","static/img/teamLogos/DEN_logo.svg")
-	  .attr("name","teamLogo")
-      .attr("width", 30)
-      .attr("height", 30);
-	
-	d3.select("#teamLogos").insert("img")
-      .attr("src","static/img/teamLogos/DET_logo.svg")
-	  .attr("name","teamLogo")
-      .attr("width", 30)
-      .attr("height", 30);
-	
-	d3.select("#teamLogos").insert("img")
-      .attr("src","static/img/teamLogos/GSW_logo.svg")
-	  .attr("name","teamLogo")
-      .attr("width", 30)
-      .attr("height", 30);
-	
-	d3.select("#teamLogos").insert("img")
-      .attr("src","static/img/teamLogos/HOU_logo.svg")
-	  .attr("name","teamLogo")
-      .attr("width", 30)
-      .attr("height", 30);
-	
-	d3.select("#teamLogos").insert("img")
-      .attr("src","static/img/teamLogos/IND_logo.svg")
-	  .attr("name","teamLogo")
-      .attr("width", 30)
-      .attr("height", 30);
-	  
-	d3.select("#teamLogos").insert("img")
-      .attr("src","static/img/teamLogos/LAC_logo.svg")
-	  .attr("name","teamLogo")
-      .attr("width", 30)
-      .attr("height", 30);
-	
-	d3.select("#teamLogos").insert("img")
-      .attr("src","static/img/teamLogos/LAL_logo.svg")
-	  .attr("name","teamLogo")
-      .attr("width", 30)
-      .attr("height", 30);
-	
-	d3.select("#teamLogos").insert("img")
-      .attr("src","static/img/teamLogos/MEM_logo.svg")
-	  .attr("name","teamLogo")
-      .attr("width", 30)
-      .attr("height", 30);
-	
-	d3.select("#teamLogos").insert("img")
-      .attr("src","static/img/teamLogos/MIA_logo.svg")
-	  .attr("name","teamLogo")
-      .attr("width", 30)
-      .attr("height", 30);
-	
-	d3.select("#teamLogos").insert("img")
-      .attr("src","static/img/teamLogos/MIL_logo.svg")
-	  .attr("name","teamLogo")
-      .attr("width", 30)
-      .attr("height", 30);
-	
-	d3.select("#teamLogos").insert("img")
-      .attr("src","static/img/teamLogos/MIN_logo.svg")
-	  .attr("name","teamLogo")
-      .attr("width", 30)
-      .attr("height", 30);
-	
-	d3.select("#teamLogos").insert("img")
-      .attr("src","static/img/teamLogos/NOP_logo.svg")
-	  .attr("name","teamLogo")
-      .attr("width", 30)
-      .attr("height", 30);
-	
-	d3.select("#teamLogos").insert("img")
-      .attr("src","static/img/teamLogos/NYK_logo.svg")
-	  .attr("name","teamLogo")
-      .attr("width", 30)
-      .attr("height", 30);
-	  
-	d3.select("#teamLogos").insert("img")
-      .attr("src","static/img/teamLogos/OKC_logo.svg")
-	  .attr("name","teamLogo")
-      .attr("width", 30)
-      .attr("height", 30);
-	  
-	d3.select("#teamLogos").insert("img")
-      .attr("src","static/img/teamLogos/ORL_logo.svg")
-	  .attr("name","teamLogo")
-      .attr("width", 30)
-      .attr("height", 30);
-	  
-	d3.select("#teamLogos").insert("img")
-      .attr("src","static/img/teamLogos/PHI_logo.svg")
-	  .attr("name","teamLogo")
-      .attr("width", 30)
-      .attr("height", 30);
-	
-	d3.select("#teamLogos").insert("img")
-      .attr("src","static/img/teamLogos/PHX_logo.svg")
-	  .attr("name","teamLogo")
-      .attr("width", 30)
-      .attr("height", 30);
-	
-	d3.select("#teamLogos").insert("img")
-      .attr("src","static/img/teamLogos/POR_logo.svg")
-	  .attr("name","teamLogo")
-      .attr("width", 30)
-      .attr("height", 30);
-	  
-	d3.select("#teamLogos").insert("img")
-      .attr("src","static/img/teamLogos/SAC_logo.svg")
-	  .attr("name","teamLogo")
-      .attr("width", 30)
-      .attr("height", 30);
-	  
-	d3.select("#teamLogos").insert("img")
-      .attr("src","static/img/teamLogos/SAS_logo.svg")
-	  .attr("name","teamLogo")
-      .attr("width", 30)
-      .attr("height", 30);
-	  
-	d3.select("#teamLogos").insert("img")
-      .attr("src","static/img/teamLogos/TOR_logo.svg")
-	  .attr("name","teamLogo")
-      .attr("width", 30)
-      .attr("height", 30);
-	  
-	d3.select("#teamLogos").insert("img")
-      .attr("src","static/img/teamLogos/UTA_logo.svg")
-	  .attr("name","teamLogo")
-      .attr("width", 30)
-      .attr("height", 30);
-	  
-	d3.select("#teamLogos").insert("img")
-      .attr("src","static/img/teamLogos/WAS_logo.svg")
-	  .attr("name","teamLogo")
-      .attr("width", 30)
-      .attr("height", 30);
+	teams.forEach(
+		function(d){
+			if(d==$('#teamSelector').val()){
+				d3.select("#teamLogos").insert("img")
+				  .attr("src","static/img/teamLogos/" + d + "_logo.svg")
+				  .attr("name","teamLogo")
+				  .attr("width", 0)
+				  .attr("height", 0);				
+			}
+			else {
+				d3.select("#teamLogos").insert("img")
+				  .attr("src","static/img/teamLogos/" + d + "_logo.svg")
+				  .attr("name","teamLogo")
+				  .attr("width", 30)
+				  .attr("height", 30);
+			}
+		}
+	);
 }
-
-
-
 
 function barStack(seriesData,tmpArray,xFlag,yFlag,gameFilter,viewFlag) {
 	for(var l=0;l<seriesData.length;++l)
 	{
 		if(gameFilter.winOrLoss>=0 && gameFilter.winOrLoss!=seriesData[l].winOrLoss) continue;
 		if(gameFilter.homeOrAway>=0 && gameFilter.homeOrAway!=seriesData[l].homeOrAway) continue;
-		if(gameFilter.opponent[seriesData[l].opponent] == 0) continue;
+		if(gameFilter.opponent[teams.indexOf(seriesData[l].opponent)] == 0) continue;
 	
 		var posBase = 0; // positive base
 		var negBase = 0; // negative base
@@ -232,7 +185,7 @@ function barStack(seriesData,tmpArray,xFlag,yFlag,gameFilter,viewFlag) {
 		}
 		// </for the view which all bars are same tall> 
 
-		for(var j=0;j<seriesData[l].attrArray.length;++j){ //内层循环是指标
+		for(var j=0;j<seriesData[l].attrArray.length;++j){ //ÄÚ²ãÑ­»·ÊÇÖž±ê
 			var tmpObject = {};
 			
 			tmpObject.xLabel = xFlag ? seriesData[l].score : seriesData[l].x;
@@ -301,15 +254,6 @@ function drawArea(tmpArray,shiftXArray,xScale){
 		return shiftXArray;
 	};
 
-var myData = [];	
-
-var showAttr = {};
-
-var teams = ["ATL","BKN","BOS","CHA","CHI","CLE","DAL","DEN","DET","GSW","HOU","IND","LAC","LAL","MEM","MIA","MIL","MIN","NOP","NYK","OKC","ORL","PHI","PHX","POR","SAC","SAS","TOR","UTA","WAS"];
-var teamColors = {"ATL":"#C3D600","BKN":"#000000","BOS":"#008348","CHA":"#1D1160","CHI":"#CE1141","CLE":"#860038","DAL":"#007DC5","DEN":"#4FA8FF","DET":"#ED174C","GSW":"#FDB927","HOU":"#CE1141","IND":"#00275D","LAC":"#006BB6","LAL":"#552582","MEM":"#6189B9","MIA":"#98002E","MIL":"#00471B","MIN":"#005083","NOP":"#002B5C","NYK":"#F58426","OKC":"#007DC3","ORL":"#007DC5","PHI":"#ED174C","PHX":"#E56020","POR":"#000000","SAC":"#724C9F","SAS":"#000000","TOR":"#CE1141","UTA":"#00471B","WAS":"#F5002F"};
-
-var barColors = ["320D6D","FFBFB7","FFD447","700353","4C1C00","CC8B86","93E1D8","283D3B","197278","0D3B66","003400"];
-
 function syncLoad(filename) {
     var data;
     $.ajax({
@@ -328,7 +272,7 @@ function syncLoad(filename) {
 			    myDataObject.score = Number(data[i].score);
 				myDataObject.homeOrAway = Number(data[i].homeOraway);
 				myDataObject.winOrLoss = (myDataObject.x > 0)? 1 : 0;
-				myDataObject.opponent = Number(data[i].opponent);
+				myDataObject.opponent = data[i].opponent;
 			  
 			    myDataObject.attrArray = new Array();
 					for(var j=4; j<data.columns.length; j+=2){
@@ -366,15 +310,69 @@ function syncLoad(filename) {
     });
 }
 
-	syncLoad("static/data/bandView.csv");
+var teams = ["ATL","BKN","BOS","CHA","CHI","CLE","DAL","DEN","DET","GSW","HOU","IND","LAC","LAL","MEM","MIA","MIL","MIN","NOP","NYK","OKC","ORL","PHI","PHX","POR","SAC","SAS","TOR","UTA","WAS"];
 
-	var tmp=new Array(myData[0].attrArray.length);
+function LoadTeamSelector(){
+	teams.forEach(
+		function(d){
+			$('#teamSelector').append($('<option>', {value:d, text: d, selected:(d=="GSW")}));
+		}
+	);
 	
-	var color = d3.scaleOrdinal(barColors);
+	d3.select("#teamInfo").insert("img")
+				  .attr("src","static/img/teamLogos/" + $('#teamSelector').val() + "_logo.svg")
+				  .attr("width", 80)
+				  .attr("height",80);
+}
+
+function ChangeTeam(sel)
+{
+	$('#teamInfo').html("");
 	
+	d3.select("#teamInfo").insert("img")
+				  .attr("src","static/img/teamLogos/" + $('#teamSelector').val() + "_logo.svg")
+				  .attr("width", 80)
+				  .attr("height",80);
 	
+	$('#fakeContainerForReload').load(document.URL +  ' #buttonContainer');
+	
+	$(document).ready(function() {
+		BindEventToButtons();
+	
+		gameFilter.winOrLoss = -1
+		gameFilter.homeOrAway = -1;
+		gameFilter.opponent.fill(1);
+		
+		gameFilter.opponent[teams.indexOf(sel.value)]=0;
+	
+		syncLoad(sel.value + ".csv");
+	
+		xFlag=yFlag=viewFlag=0;
+	
+		drawGraph(xFlag,yFlag,gameFilter,viewFlag);
+	});	
+}
+
+LoadTeamSelector();
+
+var myData = [];
+var tmp = [];	
+
+var showAttr = {};
+
+var teamColors = {"ATL":"#C3D600","BKN":"#000000","BOS":"#008348","CHA":"#1D1160","CHI":"#CE1141","CLE":"#860038","DAL":"#007DC5","DEN":"#4FA8FF","DET":"#ED174C","GSW":"#FDB927","HOU":"#CE1141","IND":"#00275D","LAC":"#006BB6","LAL":"#552582","MEM":"#6189B9","MIA":"#98002E","MIL":"#00471B","MIN":"#005083","NOP":"#002B5C","NYK":"#F58426","OKC":"#007DC3","ORL":"#007DC5","PHI":"#ED174C","PHX":"#E56020","POR":"#000000","SAC":"#724C9F","SAS":"#000000","TOR":"#CE1141","UTA":"#00471B","WAS":"#F5002F"};
+
+var barColors = ["#320D6D","#FFBFB7","#FFD447","#700353","#4C1C00","#CC8B86","#93E1D8","#283D3B","#197278","#0D3B66","#003400"];
+
+syncLoad("static/data/GSW.csv");
+
+var color = d3.scaleOrdinal(barColors);
+		
+		
 function drawGraph(xFlag, yFlag, gameFilter,viewFlag)
 {	
+	tmp = new Array(myData[0].attrArray.length);
+
 	for(var j=0;j<tmp.length;++j){
 		tmp[j]=new Array();
 	}
@@ -385,13 +383,13 @@ function drawGraph(xFlag, yFlag, gameFilter,viewFlag)
 	
 	var h = 500;
 	var w = tmp[0].length * 110 + 115;
-	var margin = 40;
+	var margin_top = 40;
+	var margin_bottom = 20;
 	var x = d3.scaleBand()
-			  .rangeRound([margin, w - margin])
+			  .rangeRound([0, w])
 			  .padding(0.4);
 			
-	var y = d3.scaleLinear().range([h, margin]);
-
+	var y = d3.scaleLinear().range([h - margin_bottom, margin_top]);
 
 	x.domain(tmp.xExtent);
 	y.domain(tmp.yExtent);
@@ -404,13 +402,13 @@ function drawGraph(xFlag, yFlag, gameFilter,viewFlag)
 	svg = d3.select("#graphContainer")
 		.insert("svg")
 		.attr("height", h)
-		.attr("width", w)
+		.attr("width", w-120)
 		.style("align","center");
 		
 	attrSvg = d3.select("#attrContainer")
 		.insert("svg")
 		.attr("height", h)
-		.attr("width", w);
+		.attr("width", 115);
 			
 	var areaPath = d3.area()
 					.curve(d3.curveMonotoneX)
@@ -511,15 +509,15 @@ function drawGraph(xFlag, yFlag, gameFilter,viewFlag)
 	var gamesInGamebar = new Array();
 	myData.forEach(
 		function(d){
-			if(gameFilter.opponent[d.opponent]==1 
+			if(gameFilter.opponent[teams.indexOf(d.opponent)]==1 
 			&&(gameFilter.winOrLoss==-1||gameFilter.winOrLoss==d.winOrLoss) 
 			&&(gameFilter.homeOrAway==-1||gameFilter.homeOrAway==d.homeOrAway))
 			{
 				var tmpObject = {};
-				if(d.homeOrAway==1) tmpObject.text = "vs " + teams[d.opponent];
-				else tmpObject.text = "@ " + teams[d.opponent];
+				if(d.homeOrAway==1) tmpObject.text = "vs " + d.opponent;
+				else tmpObject.text = "@ " + d.opponent;
 				
-				tmpObject.color = teamColors[teams[d.opponent]];
+				tmpObject.color = teamColors[d.opponent];
 				
 				gamesInGamebar.push(tmpObject);
 			}
@@ -542,6 +540,8 @@ function drawGraph(xFlag, yFlag, gameFilter,viewFlag)
 var gameFilter = {winOrLoss:-1, homeOrAway:-1};
 gameFilter.opponent = new Array(30).fill(1);
 
+gameFilter.opponent[teams.indexOf($('#teamSelector').val())]=0;
+
 var viewFlag = 0;
 
 drawGraph(0,0,gameFilter,viewFlag);
@@ -549,116 +549,5 @@ drawGraph(0,0,gameFilter,viewFlag);
 var xFlag = 0;//if xFlag=0, present xAxis as +/-; if xFlag=1, present xAxis as total points
 var yFlag = 0;//if yFlag=0, present yAxis as value; if yFlag=1, present xAxis as +/-
 
-function changeView(){
-	viewFlag = 1 - viewFlag;
-	drawGraph(xFlag,yFlag,gameFilter,viewFlag);
-}
 
-function changeX(){
-	xFlag = 1 - xFlag;
-	myData.sort(function(a,b){
-		if(xFlag)
-		     return a.score - b.score;
-		else return a.x - b.x;
-	});
-		
-	drawGraph(xFlag,yFlag,gameFilter,viewFlag);
-}
-
-
-function changeY(){
-	yFlag = 1 - yFlag;
-	
-	myData.forEach(
-		function(d){
-			d.attrArray.sort(
-				function(a,b){
-					if(yFlag)
-						return Math.abs(b.diff) - Math.abs(a.diff);
-					else return Math.abs(b.val) - Math.abs(a.val);
-				});
-	});
-		
-	drawGraph(xFlag,yFlag,gameFilter,viewFlag);
-}
-
-function changeShowAttr(i){
-	showAttr.showOrNot[i] = 1 - showAttr.showOrNot[i];
-	drawGraph(xFlag,yFlag,gameFilter,viewFlag);
-}
-
-function FilterHomeAway(status){
-	switch(status){
-		case "All": 
-			gameFilter.homeOrAway = -1; //all
-			break;
-		case "Home": 
-			gameFilter.homeOrAway = 1; //home
-			break;
-		case "Away":
-			gameFilter.homeOrAway = 0; //away
-	}
-	
-	drawGraph(xFlag,yFlag,gameFilter,viewFlag);
-}
-
-function FilterWinLoss(status){
-	switch(status){
-		case "All": 
-			gameFilter.winOrLoss = -1; //all
-			break;
-		case "Wins": 
-			gameFilter.winOrLoss = 1; //win
-			break;
-		case "Losses":
-			gameFilter.winOrLoss = 0; //loss
-	}
-	
-	drawGraph(xFlag,yFlag,gameFilter,viewFlag);
-}
-
-
-
-$('#viewBtn button').on('click', function(){
-    $(this).addClass('active').siblings().removeClass('active');
-	changeView();
-	
-	if(viewFlag == 1 ){
-		$('#XYAxisSelectors').hide();
-	}
-	else $('#XYAxisSelectors').show();
-});
-
-$('#xAxisSelector button').on('click', function(){
-    $(this).addClass('active').siblings().removeClass('active');
-	changeX();
-});
-
-$('#yAxisSelector button').on('click', function(){
-    $(this).addClass('active').siblings().removeClass('active');
-	changeY();
-});
-
-$('#homeOrAwaySelector button').on('click', function(){
-    $(this).addClass('active').siblings().removeClass('active');
-	FilterHomeAway($(this).val());
-});
-
-$('#winOrLossSelector button').on('click', function(){
-    $(this).addClass('active').siblings().removeClass('active');
-	FilterWinLoss($(this).val());
-});
-
-$('#teamLogosBtn button').on('click', function(){
-	$('#teamLogosBtn button').removeClass('active');
-	$(this).addClass('active');
-	FilterTeam($(this).val());
-});
-
-LoadTeamLogos();
-
-$('#teamLogos img').on('click', function(){
-	$('#teamLogosBtn button').removeClass('active');
-	FilterTeam($('#teamLogos img').index(this));
-});
-
+BindEventToButtons();

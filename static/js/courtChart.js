@@ -1,42 +1,40 @@
-	var widthCanvas = 939;	//画布的宽度
-	var heightCanvas = 500;	//画布的高度
+(function(window,document){
+console.log("gameClock.js has been loaded!")
+	var widthCanvas = window.document.getElementById("id2").offsetWidth;	//画布的宽度
+	var heightCanvas = window.document.getElementById("id2").offsetHeight;	//画布的高度
 
-	var svg = d3.select("body")				//选择文档中的body元素
-				.append("svg")				//添加一个svg元素
+	var svg = d3.select("#courtChart-svg")				//选择文档中的body元素
 				.attr("width", widthCanvas)		//设定宽度
-				.attr("height", heightCanvas);	//设定高度
+				.attr("height", heightCanvas);	//设定高度	
 	
 	var linearX = d3.scaleLinear()//横X坐标标度尺转换
-					.domain([0, 94])
+					.domain([0, 50])
 					.range([0, widthCanvas]);
 	var linearY = d3.scaleLinear()//纵Y坐标标度尺转换
-					.domain([0, 50])
+					.domain([0, 94])
 					.range([0, heightCanvas]);
 	var linearH = d3.scaleLinear()//高度H坐标标度尺转换
 					.domain([0, 15])
-					.range([4, 12]);				
+					.range([3, 9]);				
     var linearT = d3.scaleLinear()//时间T坐标标度尺转换
 					.domain([0, 5000])
 					.range([0, 60000]);	
 					
 	var eventSequence = 2;//event序列
-	var fileName;
+	var fileName;//被打开的json文件名
 	if (eventSequence < 10) {fileName = "static/data/courtChart/0021500492_000" + eventSequence + ".json";}
 	else if (eventSequence < 100) {fileName = "static/data/courtChart/0021500492_00" + eventSequence + ".json";}
 	else {fileName = "static/data/courtChart/0021500492_0" + eventSequence + ".json";}
+	//文件名处理
 	
 	d3.json(fileName, function(error, root) {
 		var dataOrigin = root.moments;//原始数据
 		var datalen = dataOrigin.length;//数据点长度
 
 		var k,m,tmp;
-		tmp = root.home.name + "(" + root.home.abbreviation + ")" + 
-				" VS " + root.visitor.name + "(" + root.visitor.abbreviation + ")";
-		document.getElementById("game").innerHTML = tmp;
 		
-		
-		var ballData = [];
-		var playerData = new Array(10);//球员和球的数据
+		var ballData = [];//球的数据
+		var playerData = new Array(10);//球员的数据
 		var timeData = [];//计时表顺序
 		
 		
@@ -46,15 +44,14 @@
 			timeData.push([dataOrigin[k][2],dataOrigin[k][3],tmp,allto]);
 			allto += tmp;
 		}
-		//[setTime,offensiveTime,duration,delay]
+		//[setTime,offensiveTime,duration,delay] 时钟信息,包括,节时间/进攻时间,duration与delay用于d3的过度与延时
 		
 		var allto = 0;
 		for (k = 0; k < datalen - 1; k++){
-			ballData.push([dataOrigin[k][5][0][2],dataOrigin[k][5][0][3],dataOrigin[k][5][0][4],
-			    dataOrigin[k+1][5][0][2],dataOrigin[k+1][5][0][3],dataOrigin[k+1][5][0][4],
+			ballData.push([dataOrigin[k][5][0][3],dataOrigin[k][5][0][2],dataOrigin[k][5][0][4],
                 timeData[k][2],timeData[k][3] ]    );
 		}
-		//[b.x.origin,b.y.origin,b.h.origin,b.x.after,b.y.after,b.h.after,duration,delay] 球体移动信息
+		//[b.x.origin,b.y.origin,b.h.origin,duration,delay] 球体移动信息,xyh坐标
 		for (m = 0 ; m < 10; m++){
 			playerData[m] = [];
 			allto = 0;
@@ -62,37 +59,17 @@
 				if (typeof(dataOrigin[k+1][5][10]) == "undefined") {
 					dataOrigin[k+1][5] = dataOrigin[k][5];
 				}//数据缺失处理
-				playerData[m].push([dataOrigin[k][5][m+1][2],dataOrigin[k][5][m+1][3],
-					dataOrigin[k+1][5][m+1][2],dataOrigin[k+1][5][m+1][3],
+				playerData[m].push([dataOrigin[k][5][m+1][3],dataOrigin[k][5][m+1][2],
 					timeData[k][2],timeData[k][3] ]    );
 			}
 		}
-		//[p.x.origin,p.y.origin,p.x.after,p.y.after,duration,delay] 球员移动信息
+		//[p.x.origin,p.y.origin,duration,delay] 球员移动信息,xy坐标
 		
-		var visitorPlayer = root.visitor.players;//客队球员信息
-		var homePlayer = root.home.players;//主队球员信息
-		var playerJersey = new Array(10);
-		var strv = root.visitor.abbreviation + ": ",strh = root.home.abbreviation + ": ";
-		for (m = 0; m < 10; m++){
+		var players = new Array(10);//players' variable
 		
-			tmp = findTag(visitorPlayer,homePlayer,dataOrigin[k][5][m+1][1]);
-			if (m < 5) {playerJersey[m] = visitorPlayer[tmp].jersey;}
-			else {playerJersey[m] = homePlayer[tmp].jersey;}
-			if (playerJersey[m].length == 1) {playerJersey[m] = "0" + playerJersey[m];}
-			//获取球员球衣号码
-			
-			if (m < 5) {strv+= "#" + visitorPlayer[tmp].jersey + " " + visitorPlayer[tmp].firstname + " " + visitorPlayer[tmp].lastname + " ";}
-			else {strh+= "#" + homePlayer[tmp].jersey + " " + homePlayer[tmp].firstname + " " + homePlayer[tmp].lastname + " ";}
-		}
-		document.getElementById("hPlay").innerHTML = strh;
-		document.getElementById("vPlay").innerHTML = strv;//修改场上球员列表
-		
-		var players = new Array(10);//players
-		var playersJ = new Array(10);//players' Jersey
-		
-		var playerColour;
-		var circleRadium = 12;//球员半径
-		var delayTime = Math.floor(datalen * 1.5);//预先停止时间
+		var playerColour;//球员颜色
+		var circleRadium = 6;//球员半径
+		var delayTime = Math.floor(datalen*2);//预先停止时间,即多久后动画开始播放,电脑性能允许可以调成0
 		
 		for (m = 0; m < 10; m++){
 		
@@ -105,7 +82,7 @@
 					.append("circle")
 					.transition()
 					.delay(function(d,i){
-						return linearT(d[5])+ delayTime + m/3;
+						return linearT(d[3])+ delayTime + m/2;
 					})					
 					.attr("cx", function(d,i){
 						return linearX(d[0]);
@@ -118,54 +95,19 @@
 					.duration(0)
 					.transition()
 					.duration(function(d,i){
-						return linearT(d[4]);
-					})
-					.attr("cx",function(d,i){
-						return linearX(d[2]);
-					})
-					.attr("cy",function(d,i){
-						return linearY(d[3]);
+						return linearT(d[2]);
 					})
 					.remove()
-			
-			playersJ[m] = svg.selectAll(".MyText" + m )
-					.data(playerData[m])
-					.enter()
-					.append("text")
-					.transition()
-					.delay(function(d,i){
-						return linearT(d[5])+ delayTime + m/3;
-					})
-					.attr("x", function(d,i){
-						return (linearX(d[0]) - 2 * circleRadium);
-					})
-					.attr("y", function(d,i){
-						return (linearY(d[1])- 0.5 * circleRadium);
-					})
-					.attr("dx",circleRadium)
-					.attr("dy",circleRadium)
-					.text(playerJersey[m])
-					.duration(0)
-					.transition()
-					.duration(function(d,i){
-						return linearT(d[4]);
-					})
-					.attr("x",function(d,i){
-						return (linearX(d[2])- 2 * circleRadium);
-					})
-					.attr("y",function(d,i){
-						return (linearY(d[3])- 0.5 * circleRadium);
-					})
-					.remove()
+			//球员按照playerData中数据移动
 		}
 		var ball = svg.selectAll(".MyCircle")
 					.data(ballData)
 					.enter()
-					.append("circle")
+					.append("circle")//创建了若干个circle
 					.transition()
 					.delay(function(d,i){
-						return linearT(d[7]) + delayTime;
-					})
+						return linearT(d[4]) + delayTime;
+					})//circle达到指定的delay时间才出现
 					.attr("cx", function(d,i){
 						return linearX(d[0]);
 					})
@@ -179,18 +121,11 @@
 					.duration(0)
 					.transition()
 					.duration(function(d,i){
-						return linearT(d[6]);
+						return linearT(d[3]);
 					})
-					.attr("cx",function(d,i){
-						return linearX(d[3]);
-					})
-					.attr("cy",function(d,i){
-						return linearY(d[4]);
-					})
-					.attr("r",function(d,i){
-						return linearH(d[5]);
-					})
-					.remove()	
+					.remove()//在下一个circle出现时删去	
+					
+			//球按照ballData中数据移动
 					
 		var seTime = svg.selectAll(".MyseTime")
 					.data(timeData)
@@ -203,14 +138,15 @@
 					.delay(function(d){
 						return linearT(d[3]) + delayTime;
 					})
-					.attr("x", widthCanvas/2)
-					.attr("y", 50)
+					.attr("x", 0)
+					.attr("y", heightCanvas/2+8)
 					.duration(0)
 					.transition()
 					.duration(function(d,i){
 						return linearT(d[2]);
 					})
 					.remove()
+			//节时间的变化
 		
 		var attTime = svg.selectAll(".MyattTime")
 					.data(timeData)
@@ -225,23 +161,14 @@
 					.delay(function(d){
 						return linearT(d[3]) + delayTime;
 					})
-					.attr("x", widthCanvas/2)
-					.attr("y", 80)
+					.attr("x", 0)
+					.attr("y", heightCanvas/2-8)
 					.duration(0)
 					.transition()
 					.duration(function(d,i){
 						return linearT(d[2]);
 					})
 					.remove()
+			//进攻时间的变化
 	})
-	
-	function findTag(v,h,id){
-		var i;
-		for (i = 0; i < v.length; i++){
-			if (v[i].playerid == id) {return i;}
-		}
-		for (i = 0; i < h.length; i++){
-			if (h[i].playerid == id) {return i;}
-		}
-		return 0;
-	}//根据id查找球员tag
+})(window,document);

@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Competence{% endblock %}
+
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" type="text/css" href="{{url_for('static',filename='css/competence.css')}}">
+{% endblock %}
+
+{% block page_content %}
+<div class="frame">
+	<div class="div1">
+		<div class="title">
+			<img src="static/img/teamLogos/MIA_logo.svg" height= 40% width=40% />
+			<font size="3" font-family="Arial">VS</font>
+			<img src="static/img/teamLogos/CLE_logo.svg" height= 40% width=40% />
+		</div>
+		<div class="score">
+			<font size="5" font-family="Arial">5 6 : 4 4</font>	
+		</div>
+		<div class="time">
+			<font size="4" font-family="Arial">25, Sept, 2016</font>	
+		</div>
+	</div>
+	<div class="div2" id="id1">
+		<svg id="stream-svg">
+			<defs>
+			</defs>
+		</svg>
+	</div>
+	<div class="div3" id="id2">
+		<svg id="courtChart-svg">
+		</svg>
+	</div>
+	<div class="div4" id="id3">
+		<svg id="gameclock-svg">
+		</svg>	
+	</div>
+</div>
+    <script type="text/javascript" src="static/js/lib/d3.js"></script>
+    <script type="text/javascript" src="static/js/lib/jquery.min.js"></script>
+    <script type="text/javascript" src="static/js/gameClock.js"></script>
+    <script type="text/javascript" src="static/js/playerStream.js"></script>
+    <script type="text/javascript" src="static/js/courtChart.js"></script>
+{% endblock %}
+

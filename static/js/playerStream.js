@@ -1,47 +1,7 @@
-console.log('Stream.js has been read')
 function max(a, b) { return a < b ? b : a }
 function min(a, b) { return a < b ? a : b }
 
 var GAME_TIME = 48
-var width  = 1200
-var height = 500
-var margin = 40
-
-var svg = d3.select("svg")
-            .attr("width", width)
-            .attr("height", height)
-
-function genSample(n, m) {
-    var data = []
-    var k = [50, 50, 50, 50, 50, 50, 50, 50, 50, 50]
-
-    for (var i = 0; i < n; i++) {
-        data[i] = []
-        data[i][0] = {x:0, y:5}
-        for (var j = 1; j < m; j++) {
-            var y = data[i][j-1].y
-
-            if (Math.random() * 100 < k[i])
-                y += 8
-            if (Math.random() * 100 < k[i])
-                y -= 16 
-
-            data[i][j] = {x: j, y: min(16, max(y, 2))}
-        }
-    }
-
-    var k = 0
-    for (var j = 1; j < m; j++) {
-        for (var i = 0; i < n; i++) {
-            data[i][j].y = data[i][j-1].y * k + data[i][j].y * (1-k)
-        }
-    }
-
-    return data
-}
-
-
-
 
 Parser = function() {
     var parser = {}
@@ -57,6 +17,7 @@ Parser = function() {
 
     function extractPlayer() {
         var startup = [[{}, {}, {}, {}], [{}, {}, {}, {}]]
+        var blacklist = [[{}, {}, {}, {}], [{}, {}, {}, {}]]
         // get home and visitor
         for (var i  = 0; i < data.length && (!homeName || !visitorName); i++) {
             row = data[i]
@@ -71,6 +32,7 @@ Parser = function() {
         // extract player and startup on each period
         for (var i = 0; i < data.length; i++) {
             row = data[i]
+            if (row.EVENTMSGTYPE == "18") continue // !! TRASH EVENT !!
             for (var j = 1; j <= 3; j++) {
                 ID =   "PLAYER" + j + "_ID"
                 NAME = "PLAYER" + j + "_NAME"
@@ -95,10 +57,13 @@ Parser = function() {
                 if (row[NAME] != "NA") {
                     // extract startup on every period
                     k = (row[TEAM] == homeName ? 0 : 1)
-                    if (Object.keys(startup[k][row.PERIOD-1]).length < 5 &&
-                        !(row[NAME] in startup[k][row.PERIOD-1])) {
-                        if (row.EVENTMSGTYPE == "8" && j == 2) // substitute
+                    if (Object.keys(startup[k][row.PERIOD-1]).length < 5
+                            && !(row[NAME] in startup[k][row.PERIOD-1])
+                            && !(row[NAME] in blacklist[k][row.PERIOD-1])) {
+                        if (row.EVENTMSGTYPE == "8" && j == 2) {// substitute
+                            blacklist[k][row.PERIOD-1][row[NAME]] = true
                             continue
+                        }
                         startup[k][row.PERIOD-1][row[NAME]] = true
                         players[row[ID]].action[(row.PERIOD - 1) * 12]
                                         .push({type:"up"})
@@ -110,16 +75,15 @@ Parser = function() {
         console.log("start up", startup)
     }
 
-    // !! SCORE ONLY
-    parser.parse = function() {
-        extractPlayer()
-        lastScore = [0, 0]
-        lastMin = 0
 
+    // !! SCORE ONLY
+    function extractAction() {
+        var lastScore = [0, 0]
+        var lastMin = 0
         for (var i = 0; i < data.length; i++) {
             row = data[i]
 
-            // extract score
+            // extract team score xx : xx
             if (row.SCORE != "NA") {
                 row.SCORE = [parseInt(row.SCORE),
                     parseInt(row.SCORE.substring(row.SCORE.indexOf('-')+1))]
@@ -138,6 +102,7 @@ Parser = function() {
             if (row.SCORE != "NA" && row.EVENTMSGTYPE != "12"
                     && row.EVENTMSGTYPE != "13" ) { 
                 var add
+
                 if (players[row.PLAYER1_ID].isHome)
                     add = row.SCORE[1] - lastScore[1]
                 else
@@ -147,7 +112,7 @@ Parser = function() {
                     type: "score", time: [minute, second], add: add
                 })
 
-                //console.log(players[row.PLAYER1_ID].name, time, add)
+                //console.log(players[row.PLAYER1_ID].name, minute, add)
             }
 
             // substitute
@@ -172,11 +137,18 @@ Parser = function() {
                     margin[minute] = 0
 
                 lastMin = minute + 1
-                lastScore = row.SCORE
+                lastScore[0] = row.SCORE[0]
+                lastScore[1] = row.SCORE[1]
             }
         }
         margin.splice(GAME_TIME - 1, 1)
 
+
+    }
+
+    parser.parse = function() {
+        extractPlayer()
+        extractAction()
         return parser
     }
 
@@ -221,6 +193,7 @@ Evaluator = function() {
             var ingame = false
             for (var i = 0; i < GAME_TIME; i++) {
                 var update = 0
+                var up = false
                 if (i % 12 == 0)
                     ingame = false
 
@@ -228,19 +201,20 @@ Evaluator = function() {
                     var act = action[i][j]
 
                     if (act.type == "score") {
-                        update += act.add * 2.0
+                        update += act.add * 3.0
                     } else if (act.type == "up") {
+                        up = true
                         ingame = true
                     } else if (act.type == "down") {
                         ingame = false
                     }
                 }
 
-                if (ingame)
+                if (ingame)// && !up)
                     if (update)
-                        contribute[i].y = last * 0.8 + update
+                        contribute[i].y = last * 0.5 + update
                     else
-                        contribute[i].y = max(0.5, last * 0.4)
+                        contribute[i].y = max(0.5, last * 0.5)
                 else
                     contribute[i].y = 0
 
@@ -260,13 +234,19 @@ Evaluator = function() {
     return eval
 }
 
-Stream = function() {
+Stream = function(width, height) {	
+    var width = window.document.getElementById("id1").offsetWidth;
+    var height = window.document.getElementById("id1")	.offsetHeight;
+    var margin = 40
+   
+    // INIT
+    var svg = d3.select("#stream-svg")
+                .attr("width", width)
+                .attr("height", height)
+
     var ySum = [], yMax = 0, ySumMax = [0, 0] // for upper part and lower part
-    var data = [], info = [], delta = []
-    var color = d3.scaleOrdinal().range(
-        d3.schemeCategory20
-        //d3.schemeCategory20c
-    )
+    var allData = [], data = [], info = [], delta = []
+    var color = d3.scaleOrdinal()
     var upLen, downLen
     var gap, middle
 
@@ -275,20 +255,76 @@ Stream = function() {
     stream.setData = function(source) {
         upLen = source.up.stream.length
         downLen = source.down.stream.length
+        halfLen = 5
         var name = source.up.info.concat(source.down.info)
         for (var i = 0; i < name.length; i++)
             info[i] = {name: name[i]}
-        data = source.up.stream.concat(source.down.stream)
+        allData = source.up.stream.concat(source.down.stream)
+        timeLen = allData[0].length
         delta = source.middle
 
-        // for setting the range of  scale
-        for (var j = 0; j < data[0].length; j++) {
+        // initiation : allocate new array 
+        data = new Array(halfLen * 2)
+        for (var i = 0; i < halfLen * 2; i++)
+            data[i] = new Array(timeLen)
+        // initiation : add the attribute raw i ot allData
+        for (var i = 0; i < allData.length; i++)
+            for (var j = 0; j < timeLen; j++)
+                allData[i][j].i = i
+        // initiation : pick the on-floor players at time 0
+        var lastI = -1
+        for (var k = 0; k < halfLen * 2; k++) {
+            for (var i = lastI + 1; i < allData.length; i++) {
+                if (allData[i][0].y != 0) {
+                    data[k][0] = allData[i][0]
+                    lastI = i
+                    break
+                }
+            }
+        }
+
+
+        // pick the on-floor players
+        for (var j = 1; j < timeLen; j++) {
+            var ct = 0
+            for (var i = 0; i < allData.length; i++)
+                if (allData[i][j].y != 0) {
+                    ct++
+                }
+            //console.log("time", j, ct)
+
+            var added = {}
+            // keep on
+            for (var k = 0; k < halfLen * 2; k++) {
+                var i = data[k][j-1].i
+                if (allData[i][j].y != 0) {
+                    data[k][j] = allData[i][j]
+                    added[i] = true
+                }
+            }
+            // substitute
+            for (var k = 0; k < halfLen * 2; k++) {
+                if (!data[k][j]) {
+                    for (var l = 0; l < allData.length; l++) {
+                        if (!(l in added) && allData[l][j].y != 0) {
+                            data[k][j] = allData[l][j]
+                            added[l] = true
+                            break
+                        }
+                    }
+                }
+                //console.log(k, info[data[k][j].i].name, added)
+            }
+        }
+
+        // calc sum for setting the range of scale
+        for (var j = 0; j < timeLen; j++) {
             ySum[j] = 0
             var halfSum
             for (var i = 0; i < data.length; i++) {
                 ySum[j] += data[i][j].y
                 yMax = max(data[i][j].y, yMax)
-                if (i == upLen - 1) {
+                if (i == halfLen - 1) {
                     ySumMax[0] = max(ySumMax[0], ySum[j])
                     halfSum = ySum[j]
                 } else if (i == data.length - 1) {
@@ -299,43 +335,64 @@ Stream = function() {
 
         // sort for render color
         var plStat = []
-        for (var i = 0; i < data.length; i++) {
+        for (var i = 0; i < allData.length; i++) {
             var sum = 0
-            for (var j = 0; j < data[i].length; j++)
-                sum += data[i][j].y
+            for (var j = 0; j < timeLen; j++)
+                sum += allData[i][j].y
             plStat[i] = {i: i, sum: sum}
         }
         plStat.sort(function(a, b) { return a.sum < b.sum ? 1 : -1 })
-        //plStat.forEach(function(d, i) { color(d.i) })
+        allocatedColor = new Array(allData.length)
+        var upCt = 0, downCt = 0
+        for (var i_ = 0; i_ < allData.length; i_++) {
+            var i = plStat[i_].i
+            if (i < upLen)
+                allocatedColor[i] = d3.schemeCategory10[upCt++ % 10]
+            else
+                allocatedColor[i] = d3.schemeCategory10[(19 - downCt++) % 10]
+        }
+        color.domain(d3.range(allData.length))
+             .range(allocatedColor)
+        
         return stream
     }
 
     stream.layout = function (gap_, middle_) {
         gap = gap_, middle = middle_
 
+        console.log(data)
+
         base = []
-        ySumMax[0] += gap * 5 + middle / 2
-        ySumMax[1] += gap * 5 + middle / 2
-        for (var i = 0; i < ySum.length; i++) {
-            base[i] = ySumMax[1]
+        ySumMax[0] += gap * halfLen + middle / 2
+        ySumMax[1] += gap * halfLen + middle / 2
+        for (var j = 0; j < timeLen; j++) {
+            base[j] = ySumMax[1]
         }
+
         // layout orientation: inside -> outside
-        for (var j = 0; j < ySum.length; j++) {
-            data[0][j].y0 = base[j] + middle / 2 + gap
+        for (var j = 0; j < timeLen; j++) {
+            // draw upper part
+            data[0][j].y0 = base[j] + middle / 2
             data[0][j].y1 = data[0][j].y0 + data[0][j].y
-            for (var i = 1; i < upLen; i++) {
-                if (data[i][j].y > 0) {
-                    data[i][j].y0 = data[i-1][j].y1 + gap
+            gap_ = (data[0][j].y > 0 ? gap : 0)
+            for (var i = 1; i < halfLen; i++) {
+                if (data[i][j].y != 0) {
+                    data[i][j].y0 = data[i-1][j].y1 + gap_
+                    gap_ = gap
                     data[i][j].y1 = data[i][j].y0 + data[i][j].y
                 } else {
                     data[i][j].y1 = data[i][j].y0 = data[i-1][j].y1
                 }
             }
-            data[upLen][j].y0 = base[j] - middle / 2 + gap
-            data[upLen][j].y1 = data[upLen][j].y0 - data[upLen][j].y
-            for (var i = upLen + 1; i < data.length; i++) {
+
+            // draw lower part
+            data[halfLen][j].y0 = base[j] - middle / 2
+            data[halfLen][j].y1 = data[halfLen][j].y0 - data[halfLen][j].y
+            gap_ = (data[halfLen][j].y > 0 ? gap : 0)
+            for (var i = halfLen + 1; i < data.length; i++) {
                 if (data[i][j].y > 0) {
-                    data[i][j].y0 = data[i-1][j].y1 - gap
+                    data[i][j].y0 = data[i-1][j].y1 - gap_
+                    gap_ = gap
                     data[i][j].y1 = data[i][j].y0 - data[i][j].y
                 } else {
                     data[i][j].y1 = data[i][j].y0 = data[i-1][j].y1
@@ -347,7 +404,7 @@ Stream = function() {
 
     stream.fillColor = function() {
         var defs = d3.select("defs")
-        var n = data.length, m = data[0].length
+        var n = data.length, m = timeLen
         var k = 0.2
         //var scale = d3.scaleLog().domain([0.01, yMax]).range([50, 0])
         //var opacityScale = d3.scaleLog().domain([0.5, yMax]).range([1, 1])
@@ -365,7 +422,7 @@ Stream = function() {
                 grad.append("stop")
                     .attr("offset", (100.0 * j / (m - 1)) + "%")
                     .style("stop-color", function() {
-                        var cl = d3.hsl(d3.color(color(i)))
+                        var cl = d3.hsl(d3.color(color(data[i][j].i)))
                         cl.l = lightScale(data[i][j].y)
                         return cl
                     })
@@ -394,60 +451,73 @@ Stream = function() {
                      .y1(function(d) { return yScale(d.y1) })
                      .curve(d3.curveBasis)
 
-        path = svg.selectAll("path")
+        path = svg.append("g")
+                  .selectAll("path")
                   .data(data).enter()
                   .append("path")
-                  .attr("d", function(d) { return area(d) })
+                  .attr("d", function(d, i) { 
+                      //console.log(info[i].name, d)
+                      return area(d) })
                   .style("fill", function(d, i) { return "url(#grad" + i + ")"})
 
-        path.append("title")
-            .text(function(d, i) {
-                return info[i].name
-            })
-
+        //var pre
+        //path.on("mousemove", function(d) {
+        //        var x = d3.event.layerX
+        //        console.log(d3.event.layerX, xScale.invert(x))
+        //        var name = info[d[parseInt(xScale.invert(x))].i].name
+        //        if (pre)
+        //            pre.remove()
+        //        pre = svg.append("text")
+        //           .attr("x", d3.event.layerX)
+        //           .attr("y", d3.event.layerY)
+        //           //.attr("text-anchor", "middle")
+        //           //.style("fill", "white")
+        //           .text(name)
+        //    })
         
         //======== LABEL ========
-        for (var i = 0; i < data.length; i++) {
-            break
-            var ct = 0
-            var minHeight = 25, minWidth = 24
-            for (var j = 0; j < GAME_TIME; j++) {
-                if (Math.abs(yScale(data[i][j].y1) - yScale(data[i][j].y0))
-                                                        >= minHeight) {
-                    var k = 1, peak = 0
-                    while (j + k < GAME_TIME && Math.abs(yScale(data[i][j+k].y1)
-                                    - yScale(data[i][j+k].y0)) >= minHeight) {
-                        if (Math.abs(data[i][j+k].y1 - data[i][j+k].y0) >
-                            Math.abs(data[i][j+peak].y1-data[i][j+peak].y0))
-                            peak = k
-                        k++
-                    }
-                    k -= 1
+        //for (var i = 0; i < data.length; i++) {
+        //    break
+        //    var ct = 0
+        //    var minHeight = 25, minWidth = 24
+        //    for (var j = 0; j < data[0].length; j++) {
+        //        if (Math.abs(yScale(data[i][j].y1) - yScale(data[i][j].y0))
+        //                                                >= minHeight) {
+        //            var k = 1, peak = 0
+        //            while (j + k < data[0].length &&
+        //                            Math.abs(yScale(data[i][j+k].y1)
+        //                            - yScale(data[i][j+k].y0)) >= minHeight) {
+        //                if (Math.abs(data[i][j+k].y1 - data[i][j+k].y0) >
+        //                    Math.abs(data[i][j+peak].y1-data[i][j+peak].y0))
+        //                    peak = k
+        //                k++
+        //            }
+        //            k -= 1
 
-                    console.log(k)
-                    if (xScale(data[i][j+k].x) - xScale(data[i][j].x)
-                                                    >= minWidth) {
-                        svg.append("text")
-                           .attr("x", xScale((data[i][j + peak].x)))
-                           .attr("y", yScale((data[i][j + peak].y0 +
-                                              data[i][j + peak].y1) / 2))
-                           .text(info[i].name)
-                           .attr("dy", function() {
-                               return i < upLen ? "1.2em": "-0.5em"
-                           })
-                           //.attr("dx", "0.3em")
-                           .attr("fill", "white")
-                           .style("text-anchor", "middle")
-                    }
+        //            console.log(k)
+        //            if (xScale(data[i][j+k].x) - xScale(data[i][j].x)
+        //                                            >= minWidth) {
+        //                svg.append("text")
+        //                   .attr("x", xScale((data[i][j + peak].x)))
+        //                   .attr("y", yScale((data[i][j + peak].y0 +
+        //                                      data[i][j + peak].y1) / 2))
+        //                   .text(info[i].name)
+        //                   .attr("dy", function() {
+        //                       return i < upLen ? "1.2em": "-0.5em"
+        //                   })
+        //                   //.attr("dx", "0.3em")
+        //                   .attr("fill", "white")
+        //                   .style("text-anchor", "middle")
+        //            }
 
-                    j += k
-                }
-            }
-        }
+        //            j += k
+        //        }
+        //    }
+        //}
 
 
         //======== MIDDLE SCORE BAR ========
-        var xScaleMid = d3.scaleBand().domain(d3.range(GAME_TIME))
+        var xScaleMid = d3.scaleBand().domain(d3.range(data[0].length))
                                       .range([margin, width - margin])
                                       .padding(0.1)
         absMax = d3.max(delta, function(d) { return Math.abs(d) })
@@ -462,7 +532,8 @@ Stream = function() {
            .attr("y2", yScaleMid(0))
            .style("stroke", "grey")*/
 
-        svg.selectAll("rect")
+        svg.append("g")
+           .selectAll("rect")
            .data(delta).enter()
            .append("rect")
            .attr("x", function(d, i) { return xScaleMid(i) })
@@ -474,34 +545,49 @@ Stream = function() {
            .style("fill", function(d) {
                return d > 0 ? d3.rgb(255, 175, 101) : d3.rgb(156, 202, 226)
            })
+           .append("title")
+           .text(function(d, i) { return i+1 + " : 00" + "   " + d })
 
+
+        //======== BRUSH ========
+        svg.append("g")
+           .attr("class", "brush")
+           .call(d3.brushX()
+                   .extent([[0,0], [width, height]])
+                   .on("end", brushend))
+
+        function brushend() {
+            if (!d3.event.sourceEvent) return
+            if (!d3.event.selection) return
+            coor = d3.event.selection
+            clock.draw(xScale.invert(coor[0]), xScale.invert(coor[1]))
+        }
         return stream
     }
 
     return stream
 }
 
-//d3.csv("0021500788.csv", function(error, csv) { // test
-d3.csv("static/data/playerStream.csv", function(error, csv) { // good
-//d3.csv("0021500622.csv", function(error, csv) { // bad
-//d3.csv("0021500627.csv", function(error, csv) {
-    console.log('data has been got /n')
-    if (error) throw error
 
-    parser = Parser().setData(csv)
-                     .parse()
+function drawGameView(filename, width, height) {
+    d3.csv(filename, function(error, csv) {
+        if (error) throw error
 
-    evaluator = Evaluator().setData(parser.output())
+        parser = Parser().setData(csv)
+                         .parse()
 
-    streamData = evaluator.evaluate()
-    //console.log(streamData)
-    //streamData = genSample(10, 12)
+        evaluator = Evaluator().setData(parser.output())
 
-    stream = Stream()
-    stream.setData(streamData)
-          .layout(1,8)
-          .fillColor()
-          .draw()
-})
+        streamData = evaluator.evaluate()
 
+        stream = Stream(width, height)
+        stream.setData(streamData)
+              .layout(1, 8)
+              .fillColor()
+              .draw()
 
+        clock = GameClock(width, 300, csv)
+    })
+}
+
+drawGameView("static/data/TestData.csv", 1200, 500)
