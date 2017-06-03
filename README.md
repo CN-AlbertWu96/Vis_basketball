@@ -23,7 +23,7 @@ Vis_basketball
 ## 环境配置(ubuntu 16.04)
 - **Python** ：本框架使用python2.7；
 - **Python包下载** ：利用pip安装flask,flask_script,flask_bootstrap；
-- **虚拟环境搭建(可选择)** ：假如你的主机安装的是python3.x，若只想在该文件夹下使用python2.x，可选择搭建虚拟环境。
+- **虚拟环境搭建(可供选择)** ：假如你的主机安装的是python3.x，若只想在该文件夹下使用python2.x，可选择搭建虚拟环境。
 
 ### 虚拟环境搭建说明(参考[狗书](http://pan.baidu.com/s/1misgQbI))
 虚拟环境使用第三方实用工具 **virtualenv** 创建。输入以下命令可以检查系统是否安装了virtualenv :
