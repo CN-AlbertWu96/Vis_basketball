@@ -548,7 +548,7 @@ function drawGraph(xFlag, yFlag, gameFilter,viewFlag)
 		.on("mouseover", document.body.style.cursor = "pointer")
 		.on("mouseout", document.body.style.cursor = "default")
 		.on("click",function(d,i){
-			window.location.href = "http://127.0.0.1:5000/competence/" + d.date + ' - ' + $('#teamSelector').val() + ' vs. ' + d.opponent;
+			window.location.href = "competence/" + d.date + ' - ' + $('#teamSelector').val() + ' vs. ' + d.opponent;
 		});
 	
 }

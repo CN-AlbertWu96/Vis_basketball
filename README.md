@@ -4,7 +4,7 @@
 ```
 Vis_basketball
 │   README.md
-│   project.py    
+│   project.py
 │
 └───template
 │   |   playerStream.html
