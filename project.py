@@ -34,9 +34,9 @@ def bandView():
     return render_template('bandView.html')
 
 #competence细节展示界面
-@app.route('/competence')
-def competence():
-    return render_template('competence.html')
+@app.route('/competence/<name>')
+def competence(name):
+    return render_template('competence.html',name=name)
 
 if __name__ == '__main__':
     manager.run()

@@ -590,4 +590,5 @@ function drawGameView(filename, width, height) {
     })
 }
 
-drawGameView("static/data/TestData.csv", 1200, 500)
+console.log("filename:", filename)
+drawGameView(filename, 1200, 500)

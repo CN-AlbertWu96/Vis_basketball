@@ -207,6 +207,11 @@ GameClock = function(width, height, data){
                           return "Action: " + d[key];
                       })
 
+            enterPoint.on("click",function(d,i){
+                          console.log(d['GAME_ID'],d['EVENTNUM']);
+                          startPlay(d['GAME_ID'],d['EVENTNUM']); 
+                      })
+
             enterPoint.merge(pointUpdate)
                     .transition()
                     .duration(DURATION)
@@ -295,3 +300,4 @@ GameClock = function(width, height, data){
 
     return clock;
 }
+

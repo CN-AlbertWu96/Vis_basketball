@@ -7,8 +7,8 @@ function changeX(){
 	xFlag = 1 - xFlag;
 	myData.sort(function(a,b){
 		if(xFlag)
-		     return a.score - b.score;
-		else return a.x - b.x;
+		     return a.x - b.x;
+		else return Date.parse(a.time) - Date.parse(b.time);
 	});
 		
 	drawGraph(xFlag,yFlag,gameFilter,viewFlag);
@@ -18,6 +18,7 @@ function changeX(){
 function changeY(){
 	yFlag = 1 - yFlag;
 	
+	/*
 	myData.forEach(
 		function(d){
 			d.attrArray.sort(
@@ -27,6 +28,7 @@ function changeY(){
 					else return Math.abs(b.val) - Math.abs(a.val);
 				});
 	});
+	*/
 		
 	drawGraph(xFlag,yFlag,gameFilter,viewFlag);
 }
@@ -73,9 +75,9 @@ function BindEventToButtons(){
 		changeView();
 		
 		if(viewFlag == 1 ){
-			$('#XYAxisSelectors').hide();
+			$('#yAxisSelector').hide();
 		}
-		else $('#XYAxisSelectors').show();
+		else $('#yAxisSelector').show();
 	});
 
 	$('#xAxisSelector button').on('click', function(){
@@ -163,6 +165,51 @@ function LoadTeamLogos(){
 	);
 }
 
+
+var teams = ["ATL","BKN","BOS","CHA","CHI","CLE","DAL","DEN","DET","GSW","HOU","IND","LAC","LAL","MEM","MIA","MIL","MIN","NOP","NYK","OKC","ORL","PHI","PHX","POR","SAC","SAS","TOR","UTA","WAS"];
+
+function LoadTeamSelector(){
+	teams.forEach(
+		function(d){
+			$('#teamSelector').append($('<option>', {value:d, text: d, selected:(d=="LAC")}));
+		}
+	);
+	
+	d3.select("#teamInfo").insert("img")
+				  .attr("src","static/img/teamLogos/" + $('#teamSelector').val() + "_logo.svg")
+				  .attr("width", 80)
+				  .attr("height",80);
+}
+
+function ChangeTeam(sel)
+{
+	$('#teamInfo').html("");
+	
+	d3.select("#teamInfo").insert("img")
+				  .attr("src","static/img/teamLogos/" + $('#teamSelector').val() + "_logo.svg")
+				  .attr("width", 80)
+				  .attr("height",80);
+	
+	$('#fakeContainerForReload').load(document.URL +  ' #buttonContainer');
+	
+	$(document).ready(function() {
+		BindEventToButtons();
+	
+		gameFilter.winOrLoss = -1
+		gameFilter.homeOrAway = -1;
+		gameFilter.opponent.fill(1);
+		
+		gameFilter.opponent[teams.indexOf(sel.value)]=0;
+	
+		syncLoad("static/data/bandViewData/" + sel.value + ".csv");
+	
+		xFlag=yFlag=viewFlag=0;
+	
+		drawGraph(xFlag,yFlag,gameFilter,viewFlag);
+	});	
+}
+
+
 function barStack(seriesData,tmpArray,xFlag,yFlag,gameFilter,viewFlag) {
 	for(var l=0;l<seriesData.length;++l)
 	{
@@ -185,10 +232,10 @@ function barStack(seriesData,tmpArray,xFlag,yFlag,gameFilter,viewFlag) {
 		}
 		// </for the view which all bars are same tall> 
 
-		for(var j=0;j<seriesData[l].attrArray.length;++j){ //ÄÚ²ãÑ­»·ÊÇÖž±ê
+		for(var j=0;j<seriesData[l].attrArray.length;++j){ //ÄÚ²ãÑ­»·ÊÇÖ¸±ê
 			var tmpObject = {};
 			
-			tmpObject.xLabel = xFlag ? seriesData[l].score : seriesData[l].x;
+			tmpObject.xLabel = xFlag ? seriesData[l].x : seriesData[l].time;
 									
 			if(showAttr.showOrNot[(seriesData[l].attrArray)[j].attrIndex]==0){
 				tmpObject.y0 = tmpObject.y = tmpObject.size = 0;
@@ -254,6 +301,7 @@ function drawArea(tmpArray,shiftXArray,xScale){
 		return shiftXArray;
 	};
 
+	
 function syncLoad(filename) {
     var data;
     $.ajax({
@@ -270,19 +318,22 @@ function syncLoad(filename) {
 			    var myDataObject = new Object();
 			    myDataObject.x = Number(data[i].x);
 			    myDataObject.score = Number(data[i].score);
+				
+				myDataObject.time = data[i].time;
+				
 				myDataObject.homeOrAway = Number(data[i].homeOraway);
 				myDataObject.winOrLoss = (myDataObject.x > 0)? 1 : 0;
 				myDataObject.opponent = data[i].opponent;
 			  
 			    myDataObject.attrArray = new Array();
-					for(var j=4; j<data.columns.length; j+=2){
+					for(var j=5; j<data.columns.length; j+=2){
 					var tmpObject = {};
 					tmpObject.attr = data.columns[j]; // TODO: seems useless
 					
 					tmpObject.val = Number(data[i][tmpObject.attr]);
 					tmpObject.diff = Number(data[i][tmpObject.attr]) - Number(data[i][data.columns[j+1]]);
 										
-					tmpObject.attrIndex = j/2 - 2; //can we get rid of this?
+					tmpObject.attrIndex = (j-1)/2 - 2;
 										
 					myDataObject.attrArray.push(tmpObject);
 			    }
@@ -291,14 +342,16 @@ function syncLoad(filename) {
 		  
 		    showAttr.attrNames = new Array(myData[0].attrArray.length);
 		    showAttr.showOrNot = new Array(myData[0].attrArray.length).fill(1); //Originally, show all attributes
+			showAttr.showOrNot[1]=showAttr.showOrNot[2]=showAttr.showOrNot[4]=showAttr.showOrNot[5]=showAttr.showOrNot[7]=showAttr.showOrNot[8]=showAttr.showOrNot[10]=showAttr.showOrNot[11]=0;
 			
 			for(var j=0; j<showAttr.attrNames.length; ++j)
-				showAttr.attrNames[j] = data.columns[2*j+4];
+				showAttr.attrNames[j] = data.columns[2*j+5];
 						  
 		    myData.sort(function(a,b){
-		        return a.x-b.x;
+		        return Date.parse(a.time)-Date.parse(b.time);
 		    });
-		  
+					    
+			/*
 		    myData.forEach(
 		        function(d){
 			        d.attrArray.sort(
@@ -306,51 +359,9 @@ function syncLoad(filename) {
 					        return Math.abs(b.val)-Math.abs(a.val);
 				        });
 		    });
+			*/
         }
     });
-}
-
-var teams = ["ATL","BKN","BOS","CHA","CHI","CLE","DAL","DEN","DET","GSW","HOU","IND","LAC","LAL","MEM","MIA","MIL","MIN","NOP","NYK","OKC","ORL","PHI","PHX","POR","SAC","SAS","TOR","UTA","WAS"];
-
-function LoadTeamSelector(){
-	teams.forEach(
-		function(d){
-			$('#teamSelector').append($('<option>', {value:d, text: d, selected:(d=="GSW")}));
-		}
-	);
-	
-	d3.select("#teamInfo").insert("img")
-				  .attr("src","static/img/teamLogos/" + $('#teamSelector').val() + "_logo.svg")
-				  .attr("width", 80)
-				  .attr("height",80);
-}
-
-function ChangeTeam(sel)
-{
-	$('#teamInfo').html("");
-	
-	d3.select("#teamInfo").insert("img")
-				  .attr("src","static/img/teamLogos/" + $('#teamSelector').val() + "_logo.svg")
-				  .attr("width", 80)
-				  .attr("height",80);
-	
-	$('#fakeContainerForReload').load(document.URL +  ' #buttonContainer');
-	
-	$(document).ready(function() {
-		BindEventToButtons();
-	
-		gameFilter.winOrLoss = -1
-		gameFilter.homeOrAway = -1;
-		gameFilter.opponent.fill(1);
-		
-		gameFilter.opponent[teams.indexOf(sel.value)]=0;
-	
-		syncLoad(sel.value + ".csv");
-	
-		xFlag=yFlag=viewFlag=0;
-	
-		drawGraph(xFlag,yFlag,gameFilter,viewFlag);
-	});	
 }
 
 LoadTeamSelector();
@@ -364,10 +375,9 @@ var teamColors = {"ATL":"#C3D600","BKN":"#000000","BOS":"#008348","CHA":"#1D1160
 
 var barColors = ["#320D6D","#FFBFB7","#FFD447","#700353","#4C1C00","#CC8B86","#93E1D8","#283D3B","#197278","#0D3B66","#003400"];
 
-syncLoad("static/data/GSW.csv");
+syncLoad("static/data/bandViewData/LAC.csv");
 
-var color = d3.scaleOrdinal(barColors);
-		
+var color = d3.scaleOrdinal(d3.schemeCategory20);
 		
 function drawGraph(xFlag, yFlag, gameFilter,viewFlag)
 {	
@@ -402,13 +412,13 @@ function drawGraph(xFlag, yFlag, gameFilter,viewFlag)
 	svg = d3.select("#graphContainer")
 		.insert("svg")
 		.attr("height", h)
-		.attr("width", w-120)
+		.attr("width", w)
 		.style("align","center");
 		
 	attrSvg = d3.select("#attrContainer")
 		.insert("svg")
 		.attr("height", h)
-		.attr("width", 115);
+		.attr("width", w);
 			
 	var areaPath = d3.area()
 					.curve(d3.curveMonotoneX)
@@ -423,7 +433,7 @@ function drawGraph(xFlag, yFlag, gameFilter,viewFlag)
 		.data(shiftXArray)
 		.enter()
 		.append("path")
-		.style("fill", function(d,i) { return color(i) })
+		.style("fill", function(d,i) { return color(i); })
 		.style("opacity", 0.5) //透明度
 		.attr("d",function(d,i){return areaPath(shiftXArray[i])});		
 	
@@ -433,7 +443,7 @@ function drawGraph(xFlag, yFlag, gameFilter,viewFlag)
 		.enter()
 		.append("g")
 		.classed("series", true)
-		.style("fill", function(d,i) { return color(i) })
+		.style("fill", function(d,i) { return color(i); })
 		.style("opacity", 1) //透明度
 			.selectAll("rect")
 			.data(Object)
@@ -483,8 +493,7 @@ function drawGraph(xFlag, yFlag, gameFilter,viewFlag)
 		.data(showAttr.showOrNot)
 		.enter()
 		.append("rect")
-		.style("fill", function(d,i){ return color(i); })
-		.style("opacity", function(d){ return (d)? 0.8 : 0.4; })
+		.style("fill", function(d,i){ return (d)? color(i):"#F0FFFF"; })//.style("opacity", function(d){ return (d)? 0.8 : 0.4; })
 			.attr("x", 0)
 			.attr("y", function(d,i) { return 20*(i+1); })
 			.attr("height", 20)
@@ -517,8 +526,10 @@ function drawGraph(xFlag, yFlag, gameFilter,viewFlag)
 				if(d.homeOrAway==1) tmpObject.text = "vs " + d.opponent;
 				else tmpObject.text = "@ " + d.opponent;
 				
-				tmpObject.color = teamColors[d.opponent];
-				
+				tmpObject.opponent = d.opponent;
+				tmpObject.color = teamColors[d.opponent];				
+				tmpObject.date = d.time;
+								
 				gamesInGamebar.push(tmpObject);
 			}
 		}
@@ -533,7 +544,12 @@ function drawGraph(xFlag, yFlag, gameFilter,viewFlag)
 		})
 		.attr("x", function(d,i) { return x(i); })
 		.attr("y", 20)
-		.style("fill", function(d){ return d.color; });
+		.style("fill", function(d){ return d.color; })
+		.on("mouseover", document.body.style.cursor = "pointer")
+		.on("mouseout", document.body.style.cursor = "default")
+		.on("click",function(d,i){
+			window.location.href = "http://127.0.0.1:5000/competence/" + d.date + ' - ' + $('#teamSelector').val() + ' vs. ' + d.opponent;
+		});
 	
 }
 
@@ -546,8 +562,7 @@ var viewFlag = 0;
 
 drawGraph(0,0,gameFilter,viewFlag);
 
-var xFlag = 0;//if xFlag=0, present xAxis as +/-; if xFlag=1, present xAxis as total points
+var xFlag = 0;//if xFlag=0, present xAxis as time; if xFlag=1, present xAxis as +/-
 var yFlag = 0;//if yFlag=0, present yAxis as value; if yFlag=1, present xAxis as +/-
-
 
 BindEventToButtons();

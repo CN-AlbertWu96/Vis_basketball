@@ -10,15 +10,17 @@ body,div {
 .div1 {
 	width:18.7%;
 	height:200px/*;border:1px red solid*/;
-	float:left;margin-left:4.15%;
+	float:left;
+	margin-left:4.15%;
+	margin-top: 3%;
 }/*overflow:hidden;zoom:1;是清除浮动的意思；*/
 
 .div2 {
-	width:68%;
+	width:72%;
 	height:300px/*;border:1px blue solid*/;
 	float:left;
 	margin-left:5%;
-	margin-right:4.15%;
+	margin-top: 3%;
 }
 
 .div3 {
@@ -32,11 +34,10 @@ body,div {
 }
 
 .div4 {
-	width:68%;
+	width:72%;
 	height:300px/*;border:1px purple solid*/;
 	float:left;
 	margin-left:5%;
-	margin-right:4.15%;
 }
 
 .title {
@@ -53,8 +54,9 @@ body,div {
 	margin-top:10px;
 }
 
-#courtChart-svg {
-	background-image: url(../img/court.png);background-size:100% 100%;
+#id2 {
+	background-image: url(../img/court.png);
+	background-size:100% 100%;
 }
 
 .axis path {

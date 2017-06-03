@@ -7,19 +7,19 @@
 <link rel="stylesheet" type="text/css" href="{{url_for('static',filename='css/competence.css')}}">
 {% endblock %}
 
-{% block page_content %}
+{% block content %}
 <div class="frame">
 	<div class="div1">
 		<div class="title">
-			<img src="static/img/teamLogos/MIA_logo.svg" height= 40% width=40% />
+			<img id='home' src="?" height= 40% width=40% />
 			<font size="3" font-family="Arial">VS</font>
-			<img src="static/img/teamLogos/CLE_logo.svg" height= 40% width=40% />
+			<img id='away' src="?" height= 40% width=40% />
 		</div>
 		<div class="score">
-			<font size="5" font-family="Arial">5 6 : 4 4</font>	
+			<font id='score' size="5" font-family="Arial">5 6 : 4 4</font>	
 		</div>
 		<div class="time">
-			<font size="4" font-family="Arial">25, Sept, 2016</font>	
+			<font id='competenceTime' size="4" font-family="Arial">25, Sept, 2016</font>	
 		</div>
 	</div>
 	<div class="div2" id="id1">
@@ -37,10 +37,37 @@
 		</svg>	
 	</div>
 </div>
-    <script type="text/javascript" src="static/js/lib/d3.js"></script>
-    <script type="text/javascript" src="static/js/lib/jquery.min.js"></script>
-    <script type="text/javascript" src="static/js/gameClock.js"></script>
-    <script type="text/javascript" src="static/js/playerStream.js"></script>
-    <script type="text/javascript" src="static/js/courtChart.js"></script>
-{% endblock %}
+    <script>
+    	var score = {'GSW':'104 : 108',
+    				 'PHX':'130 : 99',
+    				 'DEN':'111 : 94',
+    				 'MIL':'109 : 95',
+    				 'HOU':'97 : 107',
+    				 'OKC':'99 : 100',
+    				 'LAL':'94 : 84',
+    				 'UTA':'109 : 104',
+    				 'WAS':'91 : 103',
+    				 'PHI':'130 : 99'}
 
+    	var filename = "{{ url_for('static', filename = 'data/playerStreamData/blank.csv')}}"
+    	filename = filename.replace("blank", '{{ name }}')
+    	//var fileName = "{{ url_for('static', filename = 'data/courtChart/0021500492_000') }}"
+    	var courtChartFile = "{{ url_for('static', filename = 'data/courtChart/') }}"
+    	data = filename.replace('.csv','').split(' ')
+    	src = "{{ url_for('static', filename = 'img/teamLogos/MIA_logo.svg') }}"
+
+    	home_src = src.replace("MIA",data[2])
+    	away_src = src.replace("MIA",data[4])
+	    document.getElementById('home').src=home_src
+    	document.getElementById('away').src=away_src
+    	
+    	date = data[0].split('/')
+    	document.getElementById('competenceTime').innerHTML=date[4]
+    	document.getElementById('score').innerHTML=score[data[4]]
+    </script>
+    <script type="text/javascript" src="{{ url_for('static', filename = 'js/lib/d3.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename = 'js/lib/jquery.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename = 'js/gameClock.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename = 'js/playerStream.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename = 'js/courtChart.js') }}"></script>
+{% endblock %}
