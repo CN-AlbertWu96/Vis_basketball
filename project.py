@@ -29,14 +29,14 @@ def user(name):
     return render_template('user.html', name=name)
 
 # team level - band view
-@app.route('/bandview')
-def bandView():
-    return render_template('band-view.html')
+#@app.route('/bandview')
+#def bandView():
+#    return render_template('bandview.html')
 
 # game level - game view
 @app.route('/gameview/<name>')
 def competence(name):
-    return render_template('game-view.html', name=name)
+    return render_template('gameview.html', name=name)
 
 if __name__ == '__main__':
     manager.run()

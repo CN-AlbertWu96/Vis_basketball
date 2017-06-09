@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Game View{% endblock %}
+
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" type="text/css" href="{{url_for('static',filename='css/game-view.css')}}">
+{% endblock %}
+
+{% block content %}
+<div class="frame">
+	<div id="game-info">
+		<div class="title">
+			<img id='home' src="?" height= 40% width=40% />
+			<font size="3" font-family="Arial">VS</font>
+			<img id='away' src="?" height= 40% width=40% />
+		</div>
+		<div class="score">
+			<font id='score' size="5" font-family="Arial">5 6 : 4 4</font>	
+		</div>
+		<div class="time">
+			<font id='competenceTime' size="4" font-family="Arial">25, Sept, 2016</font>	
+		</div>
+	</div>
+	<div id="player-stream">
+	</div>
+	<div id="court-chart">
+	</div>
+    <div id="game-clock">
+	</div>
+</div>
+    <script type="text/javascript" src="{{ url_for('static', filename = 'js/lib/d3.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename = 'js/lib/jquery.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename = 'js/game-clock.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename = 'js/player-stream.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename = 'js/court-chart.js') }}"></script>
+    <script>
+    	var score = {'GSW':'104 : 108',
+    				 'PHX':'130 : 99',
+    				 'DEN':'111 : 94',
+    				 'MIL':'109 : 95',
+    				 'HOU':'97 : 107',
+    				 'OKC':'99 : 100',
+    				 'LAL':'94 : 84',
+    				 'UTA':'109 : 104',
+    				 'WAS':'91 : 103',
+    				 'PHI':'130 : 99'}
+
+        function drawGameInfo(filename) {
+            gameInfo = filename.replace('.csv','').split('%20')
+            src = "{{ url_for('static', filename = 'img/team-logo/MIA_logo.svg') }}"
+
+            home_src = src.replace("MIA", gameInfo[2])
+            away_src = src.replace("MIA", gameInfo[4])
+            document.getElementById('home').src=home_src
+            document.getElementById('away').src=away_src
+            
+            date = gameInfo[0].split('/')
+            document.getElementById('competenceTime').innerHTML=date[4]
+            document.getElementById('score').innerHTML=score[gameInfo[4]]
+
+        }
+
+        function drawGameView(filename) {
+            d3.csv(filename, function(error, data) {
+                if (error) throw error
+
+                // set data for stream
+                playerStream.setData(data)
+                            .layout(1, 8)
+                            .fillColor()
+                            .draw()
+
+                // set data for clock
+                gameClock.setData(data)
+            })
+        }
+
+    	var filename = "{{ url_for('static', filename = 'data/player-stream/' + name +'.csv')}}"
+        var sportVUDir = "{{ url_for('static', filename = 'data/court-chart/') }}"
+
+        var courtChart   = CourtChart(sportVUDir, document.getElementById("court-chart"))
+        var gameClock    = GameClock(document.getElementById("game-clock"))
+        var playerStream = PlayerStream(document.getElementById("player-stream"))
+
+        drawGameInfo(filename)
+        drawGameView(filename)
+    </script>
+{% endblock %}

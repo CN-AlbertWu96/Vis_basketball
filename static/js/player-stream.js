@@ -233,13 +233,14 @@ Evaluator = function() {
     return eval
 }
 
-Stream = function(width, height) {	
-    var width = window.document.getElementById("id1").offsetWidth;
-    var height = window.document.getElementById("id1")	.offsetHeight;
+PlayerStream = function(divObject) {	
+    var width =  divObject.offsetWidth;
+    var height = divObject.offsetHeight;
     var margin = 40
    
-    // INIT
-    var svg = d3.select("#stream-svg")
+    // init
+    var svg = d3.select(divObject)
+                .append("svg")
                 .attr("width", width)
                 .attr("height", height)
 
@@ -251,16 +252,20 @@ Stream = function(width, height) {
 
     var stream = {}
 
-    stream.setData = function(source) {
-        upLen = source.up.stream.length
-        downLen = source.down.stream.length
+    stream.setData = function(rawData) {
+        var parser = Parser().setData(rawData).parse()
+        var evaluator = Evaluator().setData(parser.output())
+        var streamData = evaluator.evaluate()
+
+        upLen = streamData.up.stream.length
+        downLen = streamData.down.stream.length
         halfLen = 5
-        var name = source.up.info.concat(source.down.info)
+        var name = streamData.up.info.concat(streamData.down.info)
         for (var i = 0; i < name.length; i++)
             info[i] = {name: name[i]}
-        allData = source.up.stream.concat(source.down.stream)
+        allData = streamData.up.stream.concat(streamData.down.stream)
         timeLen = allData[0].length
-        delta = source.middle
+        delta = streamData.middle
 
         // initiation : allocate new array 
         data = new Array(halfLen * 2)
@@ -400,7 +405,7 @@ Stream = function(width, height) {
     }
 
     stream.fillColor = function() {
-        var defs = d3.select("defs")
+        var defs = svg.append("defs")
         var n = data.length, m = timeLen
         var k = 0.2
         //var scale = d3.scaleLog().domain([0.01, yMax]).range([50, 0])
@@ -497,12 +502,12 @@ Stream = function(width, height) {
             if (!d3.event.sourceEvent) return
             if (!d3.event.selection) return
             coor = d3.event.selection
-            clock.draw(xScale.invert(coor[0]), xScale.invert(coor[1]))
+            gameClock.draw(xScale.invert(coor[0]), xScale.invert(coor[1]))
         }
 
         //======== LABEL ========
-        var baseX = document.getElementById("id1").offsetLeft
-        var baseY = document.getElementById("id1").offsetTop
+        var baseX = divObject.offsetLeft
+        var baseY = divObject.offsetTop
 
         path.append("title")
             .attr("id", function(d, i) {
@@ -560,28 +565,3 @@ Stream = function(width, height) {
 
     return stream
 }
-
-
-function drawGameView(filename, width, height) {
-    d3.csv(filename, function(error, csv) {
-        if (error) throw error
-
-        parser = Parser().setData(csv)
-                         .parse()
-
-        evaluator = Evaluator().setData(parser.output())
-
-        streamData = evaluator.evaluate()
-
-        stream = Stream(width, height)
-        stream.setData(streamData)
-              .layout(1, 8)
-              .fillColor()
-              .draw()
-
-        clock = GameClock(width, 300, csv)
-    })
-}
-
-console.log("filename:", filename)
-drawGameView(filename, 1200, 500)
