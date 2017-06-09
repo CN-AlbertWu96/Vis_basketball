@@ -149,14 +149,14 @@ function LoadTeamLogos(){
 		function(d){
 			if(d==$('#teamSelector').val()){
 				d3.select("#teamLogos").insert("img")
-				  .attr("src","static/img/teamLogos/" + d + "_logo.svg")
+				  .attr("src","static/img/team-logo/" + d + "_logo.svg")
 				  .attr("name","teamLogo")
 				  .attr("width", 0)
 				  .attr("height", 0);				
 			}
 			else {
 				d3.select("#teamLogos").insert("img")
-				  .attr("src","static/img/teamLogos/" + d + "_logo.svg")
+				  .attr("src","static/img/team-logo/" + d + "_logo.svg")
 				  .attr("name","teamLogo")
 				  .attr("width", 30)
 				  .attr("height", 30);
@@ -176,7 +176,7 @@ function LoadTeamSelector(){
 	);
 	
 	d3.select("#teamInfo").insert("img")
-				  .attr("src","static/img/teamLogos/" + $('#teamSelector').val() + "_logo.svg")
+				  .attr("src","static/img/team-logo/" + $('#teamSelector').val() + "_logo.svg")
 				  .attr("width", 80)
 				  .attr("height",80);
 }
@@ -186,7 +186,7 @@ function ChangeTeam(sel)
 	$('#teamInfo').html("");
 	
 	d3.select("#teamInfo").insert("img")
-				  .attr("src","static/img/teamLogos/" + $('#teamSelector').val() + "_logo.svg")
+				  .attr("src","static/img/team-logo/" + $('#teamSelector').val() + "_logo.svg")
 				  .attr("width", 80)
 				  .attr("height",80);
 	
@@ -201,7 +201,7 @@ function ChangeTeam(sel)
 		
 		gameFilter.opponent[teams.indexOf(sel.value)]=0;
 	
-		syncLoad("static/data/bandViewData/" + sel.value + ".csv");
+		syncLoad("static/data/band-view/" + sel.value + ".csv");
 	
 		xFlag=yFlag=viewFlag=0;
 	
@@ -375,7 +375,7 @@ var teamColors = {"ATL":"#C3D600","BKN":"#000000","BOS":"#008348","CHA":"#1D1160
 
 var barColors = ["#320D6D","#FFBFB7","#FFD447","#700353","#4C1C00","#CC8B86","#93E1D8","#283D3B","#197278","#0D3B66","#003400"];
 
-syncLoad("static/data/bandViewData/LAC.csv");
+syncLoad("static/data/band-view/LAC.csv");
 
 var color = d3.scaleOrdinal(d3.schemeCategory20);
 		
@@ -548,7 +548,7 @@ function drawGraph(xFlag, yFlag, gameFilter,viewFlag)
 		.on("mouseover", document.body.style.cursor = "pointer")
 		.on("mouseout", document.body.style.cursor = "default")
 		.on("click",function(d,i){
-			window.location.href = "competence/" + d.date + ' - ' + $('#teamSelector').val() + ' vs. ' + d.opponent;
+			window.location.href = "gameview/" + d.date + ' - ' + $('#teamSelector').val() + ' vs. ' + d.opponent;
 		});
 	
 }

@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 
-{% block title %}Competence{% endblock %}
+{% block title %}Game View{% endblock %}
 
 {% block head %}
 {{ super() }}
-<link rel="stylesheet" type="text/css" href="{{url_for('static',filename='css/competence.css')}}">
+<link rel="stylesheet" type="text/css" href="{{url_for('static',filename='css/game-view.css')}}">
 {% endblock %}
 
 {% block content %}
@@ -49,12 +49,11 @@
     				 'WAS':'91 : 103',
     				 'PHI':'130 : 99'}
 
-    	var filename = "{{ url_for('static', filename = 'data/playerStreamData/blank.csv')}}"
+    	var filename = "{{ url_for('static', filename = 'data/player-stream/blank.csv')}}"
     	filename = filename.replace("blank", '{{ name }}')
-    	//var fileName = "{{ url_for('static', filename = 'data/courtChart/0021500492_000') }}"
-    	var courtChartFile = "{{ url_for('static', filename = 'data/courtChart/') }}"
+    	var courtChartFile = "{{ url_for('static', filename = 'data/court-chart/') }}"
     	data = filename.replace('.csv','').split(' ')
-    	src = "{{ url_for('static', filename = 'img/teamLogos/MIA_logo.svg') }}"
+    	src = "{{ url_for('static', filename = 'img/team-logo/MIA_logo.svg') }}"
 
     	home_src = src.replace("MIA",data[2])
     	away_src = src.replace("MIA",data[4])
@@ -67,7 +66,7 @@
     </script>
     <script type="text/javascript" src="{{ url_for('static', filename = 'js/lib/d3.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename = 'js/lib/jquery.min.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename = 'js/gameClock.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename = 'js/playerStream.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename = 'js/courtChart.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename = 'js/game-clock.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename = 'js/player-stream.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename = 'js/court-chart.js') }}"></script>
 {% endblock %}
