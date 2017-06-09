@@ -1,4 +1,4 @@
-#coding:utf-8
+# -*- coding:utf-8 -*-
 
 from flask import Flask, render_template
 from flask_script import Manager
@@ -18,25 +18,25 @@ def page_not_found(e):
 def internal_server_error(e):
     return render_template('500.html'), 500
 
-#首页
+# index
 @app.route('/')
 def index():
     return render_template('index.html')
 
-#用户登录
+# login
 @app.route('/user/<name>')
 def user(name):
     return render_template('user.html', name=name)
 
-#bandView宏观界面
-@app.route('/bandView')
-def bandView():
-    return render_template('bandView.html')
+# team level - band view
+#@app.route('/bandview')
+#def bandView():
+#    return render_template('bandview.html')
 
-#competence细节展示界面
-@app.route('/competence/<name>')
+# game level - game view
+@app.route('/gameview/<name>')
 def competence(name):
-    return render_template('competence.html',name=name)
+    return render_template('gameview.html', name=name)
 
 if __name__ == '__main__':
     manager.run()

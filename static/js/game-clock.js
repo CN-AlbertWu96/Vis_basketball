@@ -15,9 +15,10 @@ function parseTime(time, period) {
     return new Date(2017, 0, 0, 0, minute, second);
 }
 
-GameClock = function(width, height, data){
-    var width = window.document.getElementById("id3").offsetWidth;
-    var height = window.document.getElementById("id3")	.offsetHeight;
+GameClock = function(divObject) {
+    var width =  divObject.offsetWidth;
+    var height = divObject.offsetHeight;
+
     var clock = {};
     var margin = {left: 30, right: 30, top: 10, bottom: 30};
     var areas = 6; //Shows six colors on the background
@@ -28,6 +29,7 @@ GameClock = function(width, height, data){
     var symbolStrokeColor = "black";
     var symbolStrokeSize = 0.5;
     var lineStrokewidth = (width+height)/1000;
+    var data
 
     var colorScheme = {
         "background": d3.color("lightblue"),
@@ -39,7 +41,8 @@ GameClock = function(width, height, data){
     var awaybackgroundColor = colorScheme.background.brighter(0.24*(areas-1)); //Background Color for Away Team
 
     // Main SVG
-    var svg = d3.select("#gameclock-svg")
+    var svg = d3.select(divObject)
+                .append("svg")
                 .attr("width", width)
                 .attr("height", height)
                 .append("g")
@@ -160,6 +163,10 @@ GameClock = function(width, height, data){
             .style("stroke-width", 2);
     }
 
+    clock.setData = function(rawData) {
+        data = rawData
+    }
+
     //Draw Function
     clock.draw = function (start_time, end_time) {
         begin = parseTime(start_time)
@@ -209,7 +216,7 @@ GameClock = function(width, height, data){
 
             enterPoint.on("click",function(d,i){
                           console.log(d['GAME_ID'],d['EVENTNUM']);
-                          startPlay(d['GAME_ID'],d['EVENTNUM']); 
+                          courtChart.startPlay(d['GAME_ID'],d['EVENTNUM']); 
                       })
 
             enterPoint.merge(pointUpdate)

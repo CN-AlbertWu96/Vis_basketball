@@ -1,5 +1,4 @@
 // https://d3js.org Version 4.4.0. Copyright 2016 Mike Bostock.
-console.log('D3.js has been read')
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
   typeof define === 'function' && define.amd ? define(['exports'], factory) :

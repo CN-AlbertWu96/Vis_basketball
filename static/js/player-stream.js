@@ -27,7 +27,7 @@ Parser = function() {
                 else if (row.VISITORDESCRIPTION != "NA")
                     visitorName = row.PLAYER1_TEAM_NICKNAME
         }
-        console.log(homeName, visitorName)
+        //console.log(homeName, visitorName)
 
         // extract player and startup on each period
         for (var i = 0; i < data.length; i++) {
@@ -72,7 +72,6 @@ Parser = function() {
             }
         }
 
-        console.log("start up", startup)
     }
 
 
@@ -234,13 +233,14 @@ Evaluator = function() {
     return eval
 }
 
-Stream = function(width, height) {	
-    var width = window.document.getElementById("id1").offsetWidth;
-    var height = window.document.getElementById("id1")	.offsetHeight;
+PlayerStream = function(divObject) {	
+    var width =  divObject.offsetWidth;
+    var height = divObject.offsetHeight;
     var margin = 40
    
-    // INIT
-    var svg = d3.select("#stream-svg")
+    // init
+    var svg = d3.select(divObject)
+                .append("svg")
                 .attr("width", width)
                 .attr("height", height)
 
@@ -252,16 +252,20 @@ Stream = function(width, height) {
 
     var stream = {}
 
-    stream.setData = function(source) {
-        upLen = source.up.stream.length
-        downLen = source.down.stream.length
+    stream.setData = function(rawData) {
+        var parser = Parser().setData(rawData).parse()
+        var evaluator = Evaluator().setData(parser.output())
+        var streamData = evaluator.evaluate()
+
+        upLen = streamData.up.stream.length
+        downLen = streamData.down.stream.length
         halfLen = 5
-        var name = source.up.info.concat(source.down.info)
+        var name = streamData.up.info.concat(streamData.down.info)
         for (var i = 0; i < name.length; i++)
             info[i] = {name: name[i]}
-        allData = source.up.stream.concat(source.down.stream)
+        allData = streamData.up.stream.concat(streamData.down.stream)
         timeLen = allData[0].length
-        delta = source.middle
+        delta = streamData.middle
 
         // initiation : allocate new array 
         data = new Array(halfLen * 2)
@@ -360,8 +364,6 @@ Stream = function(width, height) {
     stream.layout = function (gap_, middle_) {
         gap = gap_, middle = middle_
 
-        console.log(data)
-
         base = []
         ySumMax[0] += gap * halfLen + middle / 2
         ySumMax[1] += gap * halfLen + middle / 2
@@ -403,7 +405,7 @@ Stream = function(width, height) {
     }
 
     stream.fillColor = function() {
-        var defs = d3.select("defs")
+        var defs = svg.append("defs")
         var n = data.length, m = timeLen
         var k = 0.2
         //var scale = d3.scaleLog().domain([0.01, yMax]).range([50, 0])
@@ -451,7 +453,8 @@ Stream = function(width, height) {
                      .y1(function(d) { return yScale(d.y1) })
                      .curve(d3.curveBasis)
 
-        path = svg.append("g")
+        var path = svg.append("g")
+                  .attr("id", "stream")
                   .selectAll("path")
                   .data(data).enter()
                   .append("path")
@@ -460,22 +463,64 @@ Stream = function(width, height) {
                       return area(d) })
                   .style("fill", function(d, i) { return "url(#grad" + i + ")"})
 
-        //var pre
-        //path.on("mousemove", function(d) {
-        //        var x = d3.event.layerX
-        //        console.log(d3.event.layerX, xScale.invert(x))
-        //        var name = info[d[parseInt(xScale.invert(x))].i].name
-        //        if (pre)
-        //            pre.remove()
-        //        pre = svg.append("text")
-        //           .attr("x", d3.event.layerX)
-        //           .attr("y", d3.event.layerY)
-        //           //.attr("text-anchor", "middle")
-        //           //.style("fill", "white")
-        //           .text(name)
-        //    })
-        
+        //======== MIDDLE SCORE BAR ========
+        var xScaleMid = d3.scaleBand().domain(d3.range(data[0].length))
+                                      .range([margin, width - margin])
+                                      .padding(0.1)
+        absMax = d3.max(delta, function(d) { return Math.abs(d) })
+        var yScaleMid = d3.scaleLinear()
+                          .domain([-absMax, absMax])
+                          .range([yScale(ySumMax[1] - middle/2.5),
+                                  yScale(ySumMax[1] + middle/2.5)])
+        svg.append("g")
+           .attr("id", "middle-bar")
+           .selectAll("rect")
+           .data(delta).enter()
+           .append("rect")
+           .attr("x", function(d, i) { return xScaleMid(i) })
+           .attr("y", function(d, i) { return yScaleMid(d > 0 ? d : 0) })
+           .attr("width", xScaleMid.bandwidth() )
+           .attr("height", function(d) {
+               return Math.abs(yScaleMid(d) - yScaleMid(0))
+           })
+           .style("fill", function(d) {
+               return d > 0 ? d3.rgb(255, 175, 101) : d3.rgb(156, 202, 226)
+           })
+           .append("title")
+           .text(function(d, i) { return i+1 + " : 00" + "   " + d })
+
+
+        //======== BRUSH ========
+        svg.insert("g", "#stream")
+           .attr("id", "brush")
+           .attr("class", "brush")
+           .call(d3.brushX()
+                   .extent([[0,0], [width, height]])
+                   .on("end", brushend))
+
+        function brushend() {
+            if (!d3.event.sourceEvent) return
+            if (!d3.event.selection) return
+            coor = d3.event.selection
+            gameClock.draw(xScale.invert(coor[0]), xScale.invert(coor[1]))
+        }
+
         //======== LABEL ========
+        var baseX = divObject.offsetLeft
+        var baseY = divObject.offsetTop
+
+        path.append("title")
+            .attr("id", function(d, i) {
+                  return "stream-title-" + i;
+            })
+        path.on("mousemove", function(d, i) {
+                var x = d3.event.layerX - baseX
+                var y = d3.event.layerY - baseY
+                var name = info[d[parseInt(xScale.invert(x))].i].name
+                svg.select("#stream-title-" + i)
+                   .text(name)
+            })
+        
         //for (var i = 0; i < data.length; i++) {
         //    break
         //    var ct = 0
@@ -515,80 +560,8 @@ Stream = function(width, height) {
         //    }
         //}
 
-
-        //======== MIDDLE SCORE BAR ========
-        var xScaleMid = d3.scaleBand().domain(d3.range(data[0].length))
-                                      .range([margin, width - margin])
-                                      .padding(0.1)
-        absMax = d3.max(delta, function(d) { return Math.abs(d) })
-        var yScaleMid = d3.scaleLinear()
-                          .domain([-absMax, absMax])
-                          .range([yScale(ySumMax[1] - middle/2.5),
-                                  yScale(ySumMax[1] + middle/2.5)])
-        /*svg.append("line")
-           .attr("x1", margin)
-           .attr("y1", yScaleMid(0))
-           .attr("x2", width - margin)
-           .attr("y2", yScaleMid(0))
-           .style("stroke", "grey")*/
-
-        svg.append("g")
-           .selectAll("rect")
-           .data(delta).enter()
-           .append("rect")
-           .attr("x", function(d, i) { return xScaleMid(i) })
-           .attr("y", function(d, i) { return yScaleMid(d > 0 ? d : 0) })
-           .attr("width", xScaleMid.bandwidth() )
-           .attr("height", function(d) {
-               return Math.abs(yScaleMid(d) - yScaleMid(0))
-           })
-           .style("fill", function(d) {
-               return d > 0 ? d3.rgb(255, 175, 101) : d3.rgb(156, 202, 226)
-           })
-           .append("title")
-           .text(function(d, i) { return i+1 + " : 00" + "   " + d })
-
-
-        //======== BRUSH ========
-        svg.append("g")
-           .attr("class", "brush")
-           .call(d3.brushX()
-                   .extent([[0,0], [width, height]])
-                   .on("end", brushend))
-
-        function brushend() {
-            if (!d3.event.sourceEvent) return
-            if (!d3.event.selection) return
-            coor = d3.event.selection
-            clock.draw(xScale.invert(coor[0]), xScale.invert(coor[1]))
-        }
         return stream
     }
 
     return stream
 }
-
-
-function drawGameView(filename, width, height) {
-    d3.csv(filename, function(error, csv) {
-        if (error) throw error
-
-        parser = Parser().setData(csv)
-                         .parse()
-
-        evaluator = Evaluator().setData(parser.output())
-
-        streamData = evaluator.evaluate()
-
-        stream = Stream(width, height)
-        stream.setData(streamData)
-              .layout(1, 8)
-              .fillColor()
-              .draw()
-
-        clock = GameClock(width, 300, csv)
-    })
-}
-
-console.log("filename:", filename)
-drawGameView(filename, 1200, 500)

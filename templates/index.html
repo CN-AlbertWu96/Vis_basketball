@@ -21,7 +21,7 @@
     <link href="{{ url_for('static', filename = 'css/lib/font.css') }}" rel="stylesheet" type="text/css">
 
     <!-- Compentence CSS -->
-    <link href="{{ url_for('static', filename = 'css/competence.css') }}" rel="stylesheet" type="text/css">
+    <link href="{{ url_for('static', filename = 'css/game-view.css') }}" rel="stylesheet" type="text/css">
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -51,7 +51,7 @@
                 <a href="#Bandview" onclick=$("#menu-close").click();>Bandview</a>
             </li>
             <li>
-                <a href="/competence/2015-11-04 - LAC vs. GSW" onclick=$("#menu-close").click();>Competence</a>
+                <a href="/gameview/2015-11-04 - LAC vs. GSW" onclick=$("#menu-close").click();>Competence</a>
         </ul>
     </nav>
 
@@ -92,7 +92,7 @@
                                 <i class="fa fa-bar-chart fa-stack-1x text-primary"></i>
                             </span>
                                 <h4>
-                                    <strong>BandView</strong>
+                                    <strong>Band View</strong>
                                 </h4>
                                 <p>Use several bands to show advantages and disadvantages between two teams.</p>
                                 <a href="#Bandview" class="btn btn-light">Learn More</a>
@@ -105,7 +105,7 @@
                                 <i class="fa fa-github fa-stack-1x text-primary"></i>
                             </span>
                                 <h4>
-                                    <strong>OpenSource</strong>
+                                    <strong>Open Source</strong>
                                 </h4>
                                 <p>We provide our basic codes in github waiting for more dragging.</p>
 				</br>
@@ -119,10 +119,10 @@
                                 <i class="fa fa-area-chart fa-stack-1x text-primary"></i>
                             </span>
                                 <h4>
-                                    <strong>PlayerStream</strong>
+                                    <strong>Player Stream</strong>
                                 </h4>
                                 <p>For each competence, we provide a good graph for descibing the behavior of each player.</p>
-                                <a href="/competence" class="btn btn-light">Learn More</a>
+                                <a href="/gameview" class="btn btn-light">Learn More</a>
                             </div>
                         </div>
                         <div class="col-md-3 col-sm-6">
@@ -259,10 +259,10 @@
 
 
     <script src="{{url_for('static',filename='js/lib/d3.js')}}"></script>
-    <script src="{{url_for('static',filename='js/lib/bootstrap.min.js')}}"></script>
-    <script src="{{url_for('static',filename='js/lib/tether.min.js')}}"></script>
     <script src="{{url_for('static',filename='js/lib/jquery.min.js')}}"></script>
-    <script src="{{url_for('static',filename='js/bandView.js')}}"></script>
+    <script src="{{url_for('static',filename='js/lib/tether.min.js')}}"></script>
+    <script src="{{url_for('static',filename='js/lib/bootstrap.min.js')}}"></script>
+    <script src="{{url_for('static',filename='js/band-view.js')}}"></script>
     <script src="{{url_for('static',filename='js/home.js')}}"></script>
 
 </body>
