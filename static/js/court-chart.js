@@ -1,4 +1,7 @@
 CourtChart = function(dataDir, divObject) {
+
+    //d3.select(divObject).childNodes[2].remove();
+    
     var courtChart = {}
 
     var width = divObject.offsetWidth
@@ -11,9 +14,11 @@ CourtChart = function(dataDir, divObject) {
 
     inplay = false
     courtChart.startPlay = function(gameID, eventSequence) {
+        console.log(inplay)
         if (inplay)
             return
         inplay = true
+
         var linearX = d3.scaleLinear()//横X坐标标度尺转换
                         .domain([0, 50])
                         .range([0, width]);
@@ -80,6 +85,35 @@ CourtChart = function(dataDir, divObject) {
             var circleRadium = 6;//球员半径
             var delayTime = Math.floor(0);//预先停止时间,即多久后动画开始播放,电脑性能允许可以调成0
             
+            var homeRec = svg.append("rect")
+                                   .attr("x", 175)
+                                   .attr("y", 180)
+                                   .attr("width",25)
+                                   .attr("height",12)
+                                   .style("fill","blue")
+
+            var homeText = svg.append("text")
+                                   .attr("x", 204)
+                                   .attr("y", 188)
+                                   .text("Home")
+                                   .attr("font-size",12)
+                                   .attr("fill","black")
+
+            var awayRec = svg.append("rect")
+                                   .attr("x", 175)
+                                   .attr("y", 205)
+                                   .attr("width",25)
+                                   .attr("height",12)
+                                   .style("fill","yellow")
+
+            var awayText = svg.append("text")
+                                   .attr("x", 204)
+                                   .attr("y", 213)
+                                   .text("Away")
+                                   .attr("font-size",12)
+                                   .attr("fill","black")
+
+
             for (m = 0; m < 10; m++){
                 if (m < 5) {playerColour = "blue";}
                     else {playerColour = "yellow";}//主客球员颜色区分

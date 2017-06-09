@@ -163,6 +163,44 @@ GameClock = function(divObject) {
             .style("stroke-width", 2);
     }
 
+    // Legend
+    function legend(){
+        data = ["1", "2", "4", "5", "6"]
+        text = ["Make", "Miss", "Rebound", "Foul Drawn", "Foul"]
+        // Legend for Symbols
+        svg.selectAll(".points")
+                .data(data)
+                .enter()
+                .append("path")
+                .attr("class", "legend")
+                .attr("fill", "black")
+                .attr("transform", function(d, i){
+                        return "translate(" + (i * (width/6) + 70) + ","
+                                + (-margin.top+20) + ")"
+                    })
+                .attr("d", d3.symbol().size((width + height)/10)
+                          .type(function(d){ return symbol(d) }));
+        // Legend for text
+        svg.selectAll(".points")
+            .data(text)
+            .enter()
+            .append("text")
+            .attr("class", "text")
+            .attr("x", function(d,i){
+                return ((i * (width/6)) + 80);
+            })
+            .attr("y", function(d,i){
+                return (-margin.top+25);
+            })
+            .text(function(d){
+                return d;
+            })
+            .attr("font-family", "sans-serif")
+            .attr("font-size", "15px")
+            .attr("fill", "black")
+
+    }
+
     clock.setData = function(rawData) {
         data = rawData
     }
@@ -304,6 +342,7 @@ GameClock = function(divObject) {
     homeBackgroundColor();
     awayBackgroundColor();
     middleLine();
+    legend();
 
     return clock;
 }

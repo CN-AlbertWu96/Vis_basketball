@@ -18,19 +18,126 @@ function changeX(){
 function changeY(){
 	yFlag = 1 - yFlag;
 	
-	/*
+	if(!yFlag)	
 	myData.forEach(
 		function(d){
 			d.attrArray.sort(
 				function(a,b){
-					if(yFlag)
-						return Math.abs(b.diff) - Math.abs(a.diff);
-					else return Math.abs(b.val) - Math.abs(a.val);
+					return Math.abs(a.attrIndex) - Math.abs(b.attrIndex);
 				});
 	});
-	*/
+
+	else {
+		initOrder(myData);
+		ordering(myData);
+	}
 		
 	drawGraph(xFlag,yFlag,gameFilter,viewFlag);
+}
+
+function initOrder(myData){
+	liaoTao = new Array(17);
+	
+	for(var i=0;i<17;++i){
+		liaoTao[i] = new Array(82);
+	}
+	
+	renXuan = new Array(17);
+	for(var i=0;i<17;++i){
+		renXuan[i] = myData[0].attrArray[i].attr;
+		liaoTao[i][0] = myData[0].attrArray[i].diff;
+	}
+	for(var i=1;i<82;++i){
+		for(var j=0;j<17;++j){
+			for(var k=0;k<17;k++){
+				if(myData[i].attrArray[j].attr==renXuan[k]){
+					liaoTao[k][i]=myData[i].attrArray[j].diff;
+					break;
+				}
+			}
+		}
+		
+	}
+	meme = new Array(17);
+	for(var i=0;i<17;i++)meme[i]=i;
+	div(liaoTao, meme, 0,16,0);
+	
+	
+	tmpMyData = myData[0].attrArray.slice();
+	for(var i=0;i<17;i++){		
+		tmpMyData[i] = myData[0].attrArray[meme[i]];
+	}
+	myData[0].attrArray = tmpMyData;
+}
+
+function div(liaoTao, meme, l, r, d)
+{
+	if(l>=r)return;
+	if(d>81)return;
+	var i=l,j=r;
+	while(i<=j)
+	{
+		while(i<=j && liaoTao[meme[i]][d]>=0)i++;
+		while(j>=i && liaoTao[meme[j]][d]<0)j--;
+		if(i<j){
+			var tmp=meme[i];
+			meme[i]=meme[j];
+			meme[j]=tmp;
+		}
+	}
+	
+	div(liaoTao, meme, l,i-1,d+1);
+	div(liaoTao, meme, i,r,d+1);
+}
+
+function ordering(myData){
+	var mid=17;
+	for(i=0;i<17;++i)
+	{
+		if(myData[0].attrArray[i].diff<0)
+		{
+			mid=i;
+			break;
+		}
+	}
+	
+	for(i=0;i<mid/2;++i){
+		tmp = myData[0].attrArray[i];
+		myData[0].attrArray[i] = myData[0].attrArray[mid-1-i];
+		myData[0].attrArray[mid-1-i] = tmp;
+	}
+	
+	for(i=1;i<82;++i){
+		pos = [];
+		neg = [];
+	
+		for(j=mid-1;j>=0;--j){
+			for(k=0;k<17;++k){
+				if(myData[i-1].attrArray[j].attr == myData[i].attrArray[k].attr){
+					if(myData[i].attrArray[k].diff<0){
+						neg.push(myData[i].attrArray[k]);
+					}
+					else pos.push(myData[i].attrArray[k]);
+					break;
+				}
+			}
+		}
+		
+		
+		for(j=mid;j<17;++j){
+			for(k=0;k<17;++k){
+				if(myData[i-1].attrArray[j].attr == myData[i].attrArray[k].attr){
+					if(myData[i].attrArray[k].diff<0){
+						neg.push(myData[i].attrArray[k]);
+					}
+					else pos.push(myData[i].attrArray[k]);
+					break;
+				}
+			}
+		}
+		mid=pos.length;
+		myData[i].attrArray = pos.reverse().concat(neg);	
+	}
 }
 
 function changeShowAttr(i){
@@ -342,7 +449,7 @@ function syncLoad(filename) {
 		  
 		    showAttr.attrNames = new Array(myData[0].attrArray.length);
 		    showAttr.showOrNot = new Array(myData[0].attrArray.length).fill(1); //Originally, show all attributes
-			showAttr.showOrNot[1]=showAttr.showOrNot[2]=showAttr.showOrNot[4]=showAttr.showOrNot[5]=showAttr.showOrNot[7]=showAttr.showOrNot[8]=showAttr.showOrNot[10]=showAttr.showOrNot[11]=0;
+			//showAttr.showOrNot[1]=showAttr.showOrNot[2]=showAttr.showOrNot[4]=showAttr.showOrNot[5]=showAttr.showOrNot[7]=showAttr.showOrNot[8]=showAttr.showOrNot[10]=showAttr.showOrNot[11]=0;
 			
 			for(var j=0; j<showAttr.attrNames.length; ++j)
 				showAttr.attrNames[j] = data.columns[2*j+5];
@@ -350,7 +457,7 @@ function syncLoad(filename) {
 		    myData.sort(function(a,b){
 		        return Date.parse(a.time)-Date.parse(b.time);
 		    });
-					    
+			
 			/*
 		    myData.forEach(
 		        function(d){
