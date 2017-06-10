@@ -1,4 +1,4 @@
-body,div {
+﻿body,div {
 	padding:0;
 	margin:0;
 }
@@ -9,38 +9,41 @@ body,div {
 
 #game-info {
 	width:18.7%;
-	height:200px/*;border:1px red solid*/;
+	height:220px/*;border:1px red solid*/;
 	float:left;
-	margin-left:4.15%;
-	margin-top: 3%;
+	margin-top: 10;
+	margin-left:3%;
 }/*overflow:hidden;zoom:1;是清除浮动的意思；*/
-
-#player-stream {
-	width:72%;
-	height:300px/*;border:1px blue solid*/;
-	float:left;
-	margin-left:5%;
-	margin-top: 3%;
-}
 
 #court-chart {
 	width:18.7%;
-	height:400px;
-	border:1px green solid;
+	height:420px;
+	border:2px black solid;
 	float:left;
 	position:relative;
-	top:-120px;
-	margin-left:4.15%;
+	top:-100px;
+    margin-top: 10;
+	margin-left:3%;
 
-	background-image: url(../img/court.png);
+	background-image: url(../img/court.jpg);
 	background-size:100% 100%;
+}
+
+
+#player-stream {
+	width:72%;
+	height:320px/*;border:1px blue solid*/;
+	float:left;
+	margin-top: 10;
+	margin-left:3%;
 }
 
 #game-clock {
 	width:72%;
-	height:300px/*;border:1px purple solid*/;
+	height:320px/*;border:1px purple solid*/;
 	float:left;
-	margin-left:5%;
+    margin-top: 10;
+	margin-left:3%;
 }
 
 .title {

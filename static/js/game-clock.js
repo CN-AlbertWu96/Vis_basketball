@@ -20,7 +20,7 @@ GameClock = function(divObject) {
     var height = divObject.offsetHeight;
 
     var clock = {};
-    var margin = {left: 30, right: 30, top: 10, bottom: 30};
+    var margin = {left: 0, right: 0, top: 0, bottom: 0};
     var areas = 6; //Shows six colors on the background
     var quarters = 4; //Number of Quarters
     var maxdistance = 30; // Max Distance
@@ -173,13 +173,13 @@ GameClock = function(divObject) {
                 .enter()
                 .append("path")
                 .attr("class", "legend")
-                .attr("fill", "black")
                 .attr("transform", function(d, i){
-                        return "translate(" + (i * (width/6) + 70) + ","
-                                + (-margin.top+20) + ")"
+                        return "translate(" + ((i+1) * (width/6)) + ","
+                                + (-margin.top+12) + ")"
                     })
                 .attr("d", d3.symbol().size((width + height)/10)
                           .type(function(d){ return symbol(d) }));
+
         // Legend for text
         svg.selectAll(".points")
             .data(text)
@@ -187,17 +187,16 @@ GameClock = function(divObject) {
             .append("text")
             .attr("class", "text")
             .attr("x", function(d,i){
-                return ((i * (width/6)) + 80);
+                return ((i+1) * (width/6) + 10);
             })
             .attr("y", function(d,i){
-                return (-margin.top+25);
+                return (-margin.top+18);
             })
             .text(function(d){
                 return d;
             })
             .attr("font-family", "sans-serif")
             .attr("font-size", "15px")
-            .attr("fill", "black")
 
     }
 

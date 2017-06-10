@@ -4,6 +4,16 @@ CourtChart = function(dataDir, divObject) {
     
     var courtChart = {}
 
+    var colorScheme = {
+        "ball":       "yellow",
+
+        "homeCircle": "red",
+        "homeText":   "white",
+
+        "awayCircle": "blue",
+        "awayText":   "white",
+    }
+
     var width = divObject.offsetWidth
     var height= divObject.offsetHeight
 
@@ -12,12 +22,10 @@ CourtChart = function(dataDir, divObject) {
                 .attr("width", width)		    //设定宽度
                 .attr("height", height);	    //设定高度
 
-    inplay = false
     courtChart.startPlay = function(gameID, eventSequence) {
-        console.log(inplay)
-        if (inplay)
-            return
-        inplay = true
+        if (svg.html().search("circle") != -1) { // in play
+            return;
+        }
 
         var linearX = d3.scaleLinear()//横X坐标标度尺转换
                         .domain([0, 50])
@@ -102,42 +110,42 @@ CourtChart = function(dataDir, divObject) {
             var circleRadium = 10;//球员半径
             var delayTime = Math.floor(0);//预先停止时间,即多久后动画开始播放,电脑性能允许可以调成0
             
+            var recWidth = width / 12
             var homeRec = svg.append("rect")
-                                   .attr("x", 175)
-                                   .attr("y", 180)
-                                   .attr("width",25)
+                                   .attr("x", width * 3/4)
+                                   .attr("y", 191)
+                                   .attr("width", recWidth)
                                    .attr("height",12)
-                                   .style("fill","blue")
+                                   .style("fill", colorScheme.homeCircle)
 
             var homeText = svg.append("text")
-                                   .attr("x", 204)
-                                   .attr("y", 188)
+                                   .attr("x", width * 3/4 + recWidth + 2)
+                                   .attr("y", 201)
                                    .text("Home")
                                    .attr("font-size",12)
-                                   .attr("fill","black")
 
             var awayRec = svg.append("rect")
-                                   .attr("x", 175)
-                                   .attr("y", 205)
-                                   .attr("width",25)
+                                   .attr("x", width * 3/4)
+                                   .attr("y", 217)
+                                   .attr("width",recWidth)
                                    .attr("height",12)
-                                   .style("fill","yellow")
+                                   .style("fill", colorScheme.awayCircle)
 
             var awayText = svg.append("text")
-                                   .attr("x", 204)
-                                   .attr("y", 213)
+                                   .attr("x", width * 3/4 + recWidth + 2)
+                                   .attr("y", 227)
                                    .text("Away")
                                    .attr("font-size",12)
-                                   .attr("fill","black")
-
 
             for (m = 0; m < 10; m++){
 
-                if (m < 5) {playerColour = "blue";}
-                    else {playerColour = "yellow";}//主客球员颜色区分
+                if (m < 5) {playerColour = colorScheme.homeCircle;}
+                    else {playerColour = colorScheme.awayCircle;}
+                    //主客球员颜色区分
 
-                if (m < 5) {playerJColour = "white";}
-                    else {playerJColour = "black";}//主客球员颜色区分
+                if (m < 5) {playerJColour = colorScheme.homeText;}
+                    else {playerJColour = colorScheme.awayText;}
+                    //主客球员颜色区分
     
                 players[m] = svg.selectAll(".MyCircle"+ m )
                         .data(playerData[m])
@@ -204,7 +212,7 @@ CourtChart = function(dataDir, divObject) {
                         .attr("cy", function(d,i){
                             return linearY(d[1]);
                         })
-                        .style("fill","orange")
+                        .style("fill", colorScheme.ball)
                         .attr("r",function(d,i){
                             return linearH(d[2]);
                         })
@@ -229,7 +237,8 @@ CourtChart = function(dataDir, divObject) {
                             return linearT(d[3]) + delayTime;
                         })
                         .attr("x", 0)
-                        .attr("y", height/2+8)
+                        .attr("y", height/2)
+                        .attr("dy", "-0.1em")
                         .duration(0)
                         .transition()
                         .duration(function(d,i){
@@ -252,7 +261,8 @@ CourtChart = function(dataDir, divObject) {
                             return linearT(d[3]) + delayTime;
                         })
                         .attr("x", 0)
-                        .attr("y", height/2-8)
+                        .attr("y", height/2)
+                        .attr("dy", "1em")
                         .duration(0)
                         .transition()
                         .duration(function(d,i){
@@ -261,8 +271,6 @@ CourtChart = function(dataDir, divObject) {
                         .remove()
                 //进攻时间的变化
 
-            // to get rid of double click
-            setTimeout(function() { inplay = false; }, 6000)
         })
     }
 
