@@ -73,7 +73,24 @@ Parser = function() {
         }
 
     }
-
+    
+    // special preprocess for Microsoft Excel.
+    // Fucking excel will replace 2-0 with Feb-2 when save .csv file
+    function month2number(str) {
+        str = str.replace("Jan", "1")
+        str = str.replace("Feb", "2")
+        str = str.replace("Mar", "3")
+        str = str.replace("Apr", "4")
+        str = str.replace("May", "5")
+        str = str.replace("Jun", "6")
+        str = str.replace("Jul", "7")
+        str = str.replace("Aug", "8")
+        str = str.replace("Sep", "9")
+        str = str.replace("Oct", "10")
+        str = str.replace("Nov", "11")
+        str = str.replace("Dec", "12")
+        return str
+    }
 
     // !! SCORE ONLY
     function extractAction() {
@@ -84,6 +101,7 @@ Parser = function() {
 
             // extract team score xx : xx
             if (row.SCORE != "NA") {
+                row.SCORE = month2number(row.SCORE)
                 row.SCORE = [parseInt(row.SCORE),
                     parseInt(row.SCORE.substring(row.SCORE.indexOf('-')+1))]
             }
@@ -102,16 +120,20 @@ Parser = function() {
                     && row.EVENTMSGTYPE != "13" ) { 
                 var add
 
-                if (players[row.PLAYER1_ID].isHome)
-                    add = row.SCORE[1] - lastScore[1]
-                else
+                //if (players[row.PLAYER1_ID].isHome)
+                //    add = row.SCORE[1] - lastScore[1]
+                //else
+                //    add = row.SCORE[0] - lastScore[0]
+                add = row.SCORE[1] - lastScore[1]
+                if (add <= 0)
                     add = row.SCORE[0] - lastScore[0]
 
                 players[row.PLAYER1_ID].action[minute].push({
                     type: "score", time: [minute, second], add: add
                 })
 
-                //console.log(players[row.PLAYER1_ID].name, minute, add)
+                //console.log(players[row.PLAYER1_ID].name, players[row.PLAYER1_ID].isHome,
+                        //minute, add, row.SCORE)
             }
 
             // substitute
@@ -236,7 +258,7 @@ Evaluator = function() {
 PlayerStream = function(divObject) {	
     var width =  divObject.offsetWidth;
     var height = divObject.offsetHeight;
-    var margin = 40
+    var margin = 0
    
     // init
     var svg = d3.select(divObject)
