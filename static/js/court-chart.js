@@ -78,11 +78,28 @@ CourtChart = function(dataDir, divObject) {
                 }
             }
             //[p.x.origin,p.y.origin,duration,delay] 球员移动信息,xy坐标
+          
+
+            var visitorPlayer = root.visitor.players;//客队球员信息
+            var homePlayer = root.home.players;//主队球员信息
+            var playerJersey = new Array(10);
+        
+            for (m = 0; m < 10; m++){
             
+                tmp = findTag(visitorPlayer,homePlayer,dataOrigin[k][5][m+1][1]);
+                if (m < 5) {playerJersey[m] = visitorPlayer[tmp].jersey;}
+                else {playerJersey[m] = homePlayer[tmp].jersey;}
+                if (playerJersey[m].length == 1) {playerJersey[m] = "0" + playerJersey[m];}
+                //获取球员球衣号码
+
+            }  
+
             var players = new Array(10);//players' variable
-            
+            var playersJ = new Array(10);//players'jersey variable
+
             var playerColour;//球员颜色
-            var circleRadium = 6;//球员半径
+            var playerJColour;
+            var circleRadium = 10;//球员半径
             var delayTime = Math.floor(0);//预先停止时间,即多久后动画开始播放,电脑性能允许可以调成0
             
             var homeRec = svg.append("rect")
@@ -115,9 +132,13 @@ CourtChart = function(dataDir, divObject) {
 
 
             for (m = 0; m < 10; m++){
+
                 if (m < 5) {playerColour = "blue";}
                     else {playerColour = "yellow";}//主客球员颜色区分
-                    
+
+                if (m < 5) {playerJColour = "white";}
+                    else {playerJColour = "black";}//主客球员颜色区分
+    
                 players[m] = svg.selectAll(".MyCircle"+ m )
                         .data(playerData[m])
                         .enter()
@@ -141,7 +162,33 @@ CourtChart = function(dataDir, divObject) {
                         })
                         .remove()
                 //球员按照playerData中数据移动
-            }
+
+                playersJ[m] = svg.selectAll(".MyText" + m )
+                    .data(playerData[m])
+                    .enter()
+                    .append("text")
+                    .attr("font-size",12)
+                    .attr("fill",playerJColour)
+                    .transition()
+                    .delay(function(d,i){
+                        return linearT(d[3])+ delayTime + m/3;
+                    })
+                    .attr("x", function(d,i){
+                        return (linearX(d[0]) - 1.7 * circleRadium);
+                    })
+                    .attr("y", function(d,i){
+                        return (linearY(d[1])- 0.5 * circleRadium);
+                    })
+                    .attr("dx",circleRadium)
+                    .attr("dy",circleRadium)
+                    .text(playerJersey[m])
+                    .duration(0)
+                    .transition()
+                    .duration(function(d,i){
+                        return linearT(d[2]);
+                    })
+                    .remove()
+            } 
             
             var ball = svg.selectAll(".MyCircle")
                         .data(ballData)
@@ -221,3 +268,15 @@ CourtChart = function(dataDir, divObject) {
 
     return courtChart
 }
+
+
+function findTag(v,h,id){
+        var i;
+        for (i = 0; i < v.length; i++){
+            if (v[i].playerid == id) {return i;}
+        }
+        for (i = 0; i < h.length; i++){
+            if (h[i].playerid == id) {return i;}
+        }
+        return 0;
+    }//根据id查找球员tag
