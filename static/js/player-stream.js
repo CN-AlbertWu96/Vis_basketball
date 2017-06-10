@@ -495,7 +495,7 @@ PlayerStream = function(divObject) {
            .attr("id", "brush")
            .attr("class", "brush")
            .call(d3.brushX()
-                   .extent([[0,0], [width, height]])
+                   .extent([[margin,margin], [width - margin, height - margin]])
                    .on("end", brushend))
 
         function brushend() {
