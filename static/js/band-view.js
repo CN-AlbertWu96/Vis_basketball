@@ -308,7 +308,7 @@ function ChangeTeam(sel)
 		
 		gameFilter.opponent[teams.indexOf(sel.value)]=0;
 	
-		syncLoad("static/data/band-view/" + sel.value + ".csv");
+		syncLoad("bandViewData/" + sel.value + ".csv");
 	
 		xFlag=yFlag=viewFlag=0;
 	
@@ -470,6 +470,7 @@ function syncLoad(filename) {
         }
     });
 }
+
 
 LoadTeamSelector();
 
@@ -652,8 +653,8 @@ function drawGraph(xFlag, yFlag, gameFilter,viewFlag)
 		.attr("x", function(d,i) { return x(i); })
 		.attr("y", 20)
 		.style("fill", function(d){ return d.color; })
-		.on("mouseover", document.body.style.cursor = "pointer")
-		.on("mouseout", document.body.style.cursor = "default")
+		.on("mouseover", function(){document.body.style.cursor = "pointer";})
+		.on("mouseout", function(){document.body.style.cursor = "default";})
 		.on("click",function(d,i){
 			window.location.href = "gameview/" + d.date + ' - ' + $('#teamSelector').val() + ' vs. ' + d.opponent;
 		});
